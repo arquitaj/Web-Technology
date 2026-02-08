@@ -19,29 +19,39 @@ const items = [
 const UploadDoc = () => {
     const [documentNo, setDocumentNo] = useState("");
     const [issuanceType, setIssuanceType] = useState("");
-    const [series, setSeries] = useState(0);
+    const [series, setSeries] = useState("");
     const [date, setDate] = useState("");
     const [subject, setSubject] = useState("");
-    const [keyword, setKeyword] = useState("")
+    const [keyword, setKeyword] = useState("");
+    const [file, setFile] = useState<File | null>(null);
 
-    const handlebtnUpload= async () => {
-    try{
-      const response = await axios.post("http://localhost:8080/home/uploadDocument", {
-        documentNo: documentNo,
-        issuanceType: issuanceType,
-        series: series,
-        date: date,
-        subject: subject,
-        keyword: keyword, 
-      });
-      if(response.data.success){
-        alert("Successfully Uploaded New Document!")
-      }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    }catch(error: any){
-      // Axios throws an error for 401/500 status codes
-      alert(error.response?.data?.message || "Failed to Add New Document!");
-    }
+    const handlebtnUpload= async (e: { preventDefault: () => void; }) => {
+        e.preventDefault();
+        try{
+            if (!file) {
+                alert("Please select a file.");
+                return;
+            }
+            const fileData = new FormData();
+            fileData.append('myFile', file);
+            fileData.append('documentNo', documentNo);
+            fileData.append('issuanceType', issuanceType);
+            fileData.append('series', series);
+            fileData.append('date', date);
+            fileData.append('subject', subject);
+            fileData.append('keyword', keyword);
+
+        const response = await axios.post("http://localhost:8080/aims/document/uploadDocument", fileData,{
+            headers: {'Content-Type': 'multipart/form-data'}
+        });
+        if(response.data.success){
+            alert(response.data.message);
+        }
+        
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        }catch(error: any){
+            alert(error.response?.data?.message || "Failed to Add New Employee!");
+        }
   }
 
   return (
@@ -52,7 +62,16 @@ const UploadDoc = () => {
         <div className="row justify-content-center w-100">
         <div className="mb-3 col-md-6">
           <label htmlFor="formFile" className="form-label">Upload Document</label>
-          <input className="form-control" type="file" id="formFile"/>
+          <input 
+            className="form-control" 
+            type="file" 
+            id="formFile"
+            autoComplete='off'
+            onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                    setFile(e.target.files[0]);
+                }
+        }}/>
         </div>
         </div>
 
@@ -92,7 +111,7 @@ const UploadDoc = () => {
                     id="series" 
                     autoComplete='off'
                     value={series}
-                    onChange={(e) => setSeries(Number(e.target.value))}/>
+                    onChange={(e) => setSeries(e.target.value)}/>
                 </div>
             </div>
 

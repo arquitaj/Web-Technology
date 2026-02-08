@@ -3,6 +3,8 @@ import { Router } from 'express';
 import userRouter from './user.routes';
 import employeeRouter from './employee.routes';
 import authRouter from './auth.routes'
+import documentRouter from './document.routes'
+
 
 const rootRouter = Router();
 
@@ -10,6 +12,7 @@ const rootRouter = Router();
 rootRouter.use('/users', userRouter);
 rootRouter.use('/employees', employeeRouter);  //Router for fetching all employees
 rootRouter.use('/login', authRouter);   //Router for Login
+rootRouter.use('/document', documentRouter); //Document
 
 // Catch-all for 404s within the API
 rootRouter.use((req, res) => {

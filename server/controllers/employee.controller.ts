@@ -20,11 +20,9 @@ export const addEmployee = async(req: Request, res: Response) => {
         const empID = await User.findOne({employeeID:employeeID});
         const empEmail = await User.findOne({email:email});
         if(empID){
-            console.log("Employee ID already exist!")
             return res.status(400).json({success: false, message:"Employee ID already exist!"});
         }else{
             if(empEmail){
-                console.log("Email already exist!");
                 return res.status(400).json({success: false, message:"Email already exist!"});
             }else{
                 const newEmployee = new User({
@@ -38,12 +36,10 @@ export const addEmployee = async(req: Request, res: Response) => {
                     role: role
                 });
                 await newEmployee.save();
-                const user = await User.find();
-                console.log("Successfully added new employee!")
             }   return res.status(200).json({success: true, message:"Successfully added new employee!"});
         }
     }catch(error){
-        console.log("Error", error);
+        return res.status(400).json({success: false, message:"Error to add employees!"});
     }
 }
 
@@ -69,14 +65,12 @@ export const updateEmployee = async(req: Request, res: Response) => {
         });
 
         if(!response){
-            console.log("Employee doesn't exist!");
             return res.status(400).json({success: false, message:"Employee doesn't exist!"});
         }else{
-            console.log("Successfully updated employee!");
             return res.status(200).json({success: true, message:"Successfully updated employee!"});
         }
     }catch(error){
-        console.log("Error", error);
+        return res.status(400).json({success: false, message:"Error to update employees!"});
     }
 }
 
@@ -87,13 +81,11 @@ export const deleteEmployee = async (req: Request, res: Response) => {
         console.log(employeeID);
         const response = await User.findOneAndDelete({employeeID:employeeID});
         if(response){
-            console.log("Successfully Deleted!");
             return res.status(200).json({success: true, message:"Successfully deleted employee!"});
         }else{
-            console.log("No Employee Found!");
             return res.status(400).json({success: false, message:"No employee found!"});
         }
     }catch(error){
-        console.log("Error", error);
+        return res.status(400).json({success: false, message:"Error to delete employees!"});
     }
 }
