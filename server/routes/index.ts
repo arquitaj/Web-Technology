@@ -10,7 +10,7 @@ const rootRouter = Router();
 
 // Categorize by prefixing with /users
 rootRouter.use('/users', userRouter);
-rootRouter.use('/employees', employeeRouter);  //Router for fetching all employees
+rootRouter.use('/employees', employeeRouter);  //Router for employees
 rootRouter.use('/login', authRouter);   //Router for Login
 rootRouter.use('/document', documentRouter); //Document
 

@@ -6,7 +6,6 @@ import {User} from '../models/employee.model';
 export const getAllEmployees = async (req: Request, res: Response) => {
     try{
         const users = await User.find();
-        console.log(users);
         return res.status(200).json({success: true, message: "Employees fetched successfully", users});
     }catch(error){
         return res.status(400).json({success: false, message: "Error: ", error})
@@ -16,8 +15,8 @@ export const getAllEmployees = async (req: Request, res: Response) => {
 // Adding of New Employee
 export const addEmployee = async(req: Request, res: Response) => {
     try{
-        const {employeeID, fname, mname, lname, email, userName, password, role} = req.body;
-        const empID = await User.findOne({employeeID:employeeID});
+        const {userID, fname, mname, lname, email, userName, password, role} = req.body;
+        const empID = await User.findOne({userID:userID});
         const empEmail = await User.findOne({email:email});
         if(empID){
             return res.status(400).json({success: false, message:"Employee ID already exist!"});
@@ -26,14 +25,15 @@ export const addEmployee = async(req: Request, res: Response) => {
                 return res.status(400).json({success: false, message:"Email already exist!"});
             }else{
                 const newEmployee = new User({
-                    employeeID : employeeID,
+                    userID : userID,
                     firstName : fname,
                     middleName : mname,
                     lastName : lname,
                     email : email,
                     username : userName,
                     password : password,
-                    role: role
+                    role: role,
+                    createdAt: Date.now()
                 });
                 await newEmployee.save();
             }   return res.status(200).json({success: true, message:"Successfully added new employee!"});
@@ -46,9 +46,13 @@ export const addEmployee = async(req: Request, res: Response) => {
 //Update Employee
 export const updateEmployee = async(req: Request, res: Response) => {
     try{
-        const {employeeID} = req.params;
+        const {userID} = req.params;
         const {fname, mname, lname, email, userName, password, role} = req.body;
-        const filter = {employeeID:employeeID};
+        console.log("userID", userID);
+        console.log("fname", fname);
+        console.log("mname", mname);
+        console.log("lname", lname);
+        const filter = {userID:userID};
         const update = {
             firstName : fname,
             middleName : mname,
@@ -77,9 +81,8 @@ export const updateEmployee = async(req: Request, res: Response) => {
 // Delete Employee
 export const deleteEmployee = async (req: Request, res: Response) => {
     try{
-        const {employeeID} = req.params;
-        console.log(employeeID);
-        const response = await User.findOneAndDelete({employeeID:employeeID});
+        const {userID} = req.params;
+        const response = await User.findOneAndDelete({userID:userID});
         if(response){
             return res.status(200).json({success: true, message:"Successfully deleted employee!"});
         }else{

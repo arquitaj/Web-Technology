@@ -9,7 +9,7 @@ const AddNewEmp = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [users, setUsers] = useState<any[]>([]);
-  const [employeeID, setEmployeeID] = useState("")
+  const [userID, setEmployeeID] = useState("")
   const [fname, setFname] = useState("");
   const [mname, setMname] = useState("");
   const [lname, setLname] = useState("");
@@ -17,20 +17,7 @@ const AddNewEmp = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
-
-//   const fetchEmployees = async () => {
-//   try {
-//     const response = await axios.get("http://localhost:8080/aims/employees/allEmployees");
-
-//     // SAFETY: fallback to empty array
-//     setUsers(response.data.users ?? response.data ?? []);
-//   } catch (error) {
-//     console.error(error);
-//     setUsers([]);
-//   }
-// };
-  
-  
+    
   const fetchEmployees = async () => {
     const response = await axios.get("http://localhost:8080/aims/employees/allEmployees");
     setUsers(response.data.users ?? response.data ?? []);
@@ -42,19 +29,6 @@ const AddNewEmp = () => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchEmployees();
   }, []);
-
-//   useEffect(() => {
-//   const fetchEmployees = async () => {
-//     try {
-//       const response = await axios.get("http://localhost:8080/aims/employees/allEmployees");
-//       setUsers(response.data.users);
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
-
-//   fetchEmployees();
-// }, []); // No more dependency errors
 
 //To empty input Fields
   function emptyInputComponents() {
@@ -70,8 +44,8 @@ const AddNewEmp = () => {
   }
   const handleUpdate = (index: number)=>{
     const selectedUser = users[index];
-    setEditingId(selectedUser.employeeID);
-    setEmployeeID(selectedUser.employeeID); 
+    setEditingId(selectedUser.userID);
+    setEmployeeID(selectedUser.userID); 
     setFname(selectedUser.firstName);
     setMname(selectedUser.middleName);
     setLname(selectedUser.lastName);
@@ -82,9 +56,8 @@ const AddNewEmp = () => {
   }
 
   const handlebtnDelete = async() => {
-    console.log(employeeID);
     try{
-      const response = await axios.delete(`http://localhost:8080/aims/employees/deleteEmployee/${employeeID}`);
+      const response = await axios.delete(`http://localhost:8080/aims/employees/deleteEmployee/${userID}`);
       alert(response.data.message);
       fetchEmployees();
       setShowModal(false);
@@ -96,7 +69,7 @@ const AddNewEmp = () => {
     try{
       if(editingId === null){
         const response = await axios.post("http://localhost:8080/aims/employees/addEmployee", {
-        employeeID: employeeID,
+        userID: userID,
         fname: fname,
         mname: mname,
         lname: lname,
@@ -112,7 +85,8 @@ const AddNewEmp = () => {
         emptyInputComponents();
       }
       }else{
-        const response = await axios.put(`http://localhost:8080/aims/employees/updateEmployee/${employeeID}`, {
+        alert(userID);
+        const response = await axios.put(`http://localhost:8080/aims/employees/updateEmployee/${userID}`, {
           fname: fname,
           mname: mname,
           lname: lname,
@@ -163,7 +137,7 @@ const AddNewEmp = () => {
             ></button>
           </div>
           <div className="modal-body">
-            Are you sure you want to delete this employee with ID No. <b>{employeeID}</b>?
+            Are you sure you want to delete this employee with ID No. <b>{userID}</b>?
           </div>
           <div className="modal-footer d-flex justify-content-center">
             <button type="button" className="btn btn-primary btn-yes" onClick={handlebtnDelete}>
@@ -188,7 +162,7 @@ const AddNewEmp = () => {
               <input 
                 type="text"
                 autoComplete='off'
-                value={employeeID}
+                value={userID}
                 onChange={(e) => setEmployeeID(e.target.value)}/>
             </div>
 
@@ -294,7 +268,7 @@ const AddNewEmp = () => {
           ) : (
             users.map((user, index) => (
               <tr key={user._id}>
-                <td>{user.employeeID}</td>
+                <td>{user.userID}</td>
                 <td>{user.firstName}</td>
                 <td>{user.middleName}</td>
                 <td>{user.lastName}</td>
@@ -308,7 +282,7 @@ const AddNewEmp = () => {
                     <Edit2 size={18} />
                   </button>
                   <button type="button" className="btn-delete" onClick={() =>{
-                    setEmployeeID(user.employeeID);
+                    setEmployeeID(user.userID);
                     setShowModal(true);
                   }}>
                     <X size={18} />
