@@ -1,4 +1,8 @@
-import React from 'react';
+import {useState, useEffect} from 'react';
+import axios from 'axios';
+import Table, { type columnConfig } from './Table';
+import "../assets/Table.css";
+
 
 const items = [
     '--SELECT--',
@@ -15,7 +19,55 @@ const items = [
     'Memorandum Order'
 ];
 
+interface documentData{
+    documentNo: string;
+    issuanceType: string;
+    series: string;
+    date: string;
+    subject: string;
+    keyword: string;
+}
 const SearchDoc = () => {
+    const [dataTable, setDataTable] = useState([]);
+    console.log(dataTable);
+
+    const columns: columnConfig<documentData>[] = [
+        {header: "No.", key: "documentNo"},
+        {header: "Type", key: "issuanceType"},
+        {header: "Series", key: "series"},
+        {header: "Date", 
+         key: "date",
+         render: (item) => new Date(item.date).toLocaleDateString('en-PH')
+        },
+        {header: "Subject", key: "subject"},
+        {header: "Keyword", key: "keyword"},
+        {header: "Action",
+         key: "actions",
+         render: (item) => (
+        <>
+            <img src="../public/forward.png" className='tbl-Icon' onClick={() => handleView(item)} />
+            <img src="../public/pen.png" className='tbl-Icon'/>
+            <img src="../public/delete.png" className='tbl-Icon'/>
+            <img src="../public/view.png" className='tbl-Icon'/>
+            <img src="../public/download.png" className='tbl-Icon'/>
+        </>
+      )
+    }
+    ];
+    const handleView = (doc: documentData) => {
+        alert(`Opening Document: ${doc.documentNo}`);
+    };
+
+    const fetchDocuments = async () => {
+    const response = await axios.get("http://localhost:8080/aims/document/allDocuments");
+    setDataTable(response.data.documents ?? response.data ?? []);
+    
+  }
+  useEffect (() =>{
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchDocuments();
+  }, []);
+
   return (
     <div>
         <div className="container">
@@ -70,11 +122,11 @@ const SearchDoc = () => {
             <div className="mb-3">
             <button type="submit" className="btn btn-primary">Search</button>
             </div>
-
-            
-
-
         </form>
+
+        </div>
+        <div className="table-wrapper">
+            <Table data={dataTable} columns={columns}/>
         </div>
     </div>
   );

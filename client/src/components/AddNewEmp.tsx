@@ -22,9 +22,6 @@ const AddNewEmp = () => {
     const response = await axios.get("http://localhost:8080/aims/employees/allEmployees");
     setUsers(response.data.users ?? response.data ?? []);
   }
-  // useEffect(() => {
-  //   fetchEmployees();
-  // }, []);
   useEffect (() =>{
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchEmployees();

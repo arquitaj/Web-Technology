@@ -10,4 +10,4 @@ export const Document = model ('Document', new Schema({
     file: {type: Buffer, required: true},
     uploadDate: {type: Date, required: true},
     employeeID: {type: String, require: true},
-}, {collection: "documentlists"}));
+}, {collection: "document"}));
