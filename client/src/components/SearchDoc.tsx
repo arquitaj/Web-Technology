@@ -48,7 +48,7 @@ const SearchDoc = () => {
             <img src="../public/forward.png" className='tbl-Icon' onClick={() => handleView(item)} />
             <img src="../public/pen.png" className='tbl-Icon'/>
             <img src="../public/delete.png" className='tbl-Icon' onClick={() => handleDelete(item.documentNo)}/>
-            <img src="../public/view.png" className='tbl-Icon'/>
+            <img src="../public/view.png" className='tbl-Icon' onClick={() => handleViewFile(item.documentNo)}/>
             <img src="../public/download.png" className='tbl-Icon'/>
         </>
       )
@@ -64,6 +64,16 @@ const SearchDoc = () => {
         const response = await axios.delete(`http://localhost:8080/aims/documents/deleteDocument/${documentNo}`);
         alert(response.data.message);
         fetchDocuments();
+    }
+
+    //To view the file
+    const handleViewFile = async (documentNo: string) => {
+        // alert("handle view is clicked");
+        // const response = await axios.get(`http://localhost:8080/aims/documents/viewDocument/${documentNo}`);
+        // if(response.status){
+        //     window.open('/api/pdf/698c7664ad6f58038098a9ea', '_blank');
+        // }
+        window.open(`http://localhost:8080/aims/documents/viewDocument/${documentNo}`);
     }
 
     // To display all documents
