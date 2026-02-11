@@ -1,6 +1,6 @@
 import React from "react";
 import { CheckCircle, XCircle, Info } from "lucide-react";
-import "../assets/IncomingDoc.css";
+import "../../../assets/styles/IncomingDoc.css";
 
 const IncomingDoc = () => {
 const docs = [

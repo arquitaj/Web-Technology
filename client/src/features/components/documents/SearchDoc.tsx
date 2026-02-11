@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import axios from 'axios';
-import Table, { type columnConfig } from './Table';
-import "../assets/Table.css";
+import Table, { type columnConfig } from '../../../shared/components/ui/Table';
+import "../../../assets/styles/Table.css";
 
 
 const items = [

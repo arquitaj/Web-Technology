@@ -21,4 +21,8 @@ body {
 .navbar {
   background-color: #eaf2fb !important;
   border-bottom: 1px solid rgba(93, 92, 92, 0.5);
+} 
+
+.banner-image img {
+  max-height: auto;
 }

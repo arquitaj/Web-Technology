@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import './assets/App.css'
+import '../assets/styles/App.css'
 // import Alert from './components/Alert'
 // import Dashboard from './Pages/Dashboard'
 import { useNavigate } from 'react-router-dom'

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { X, Save, Edit2 } from "lucide-react";
-import "../assets/AddNewEmp.css";
+import "../../../assets/styles/AddNewEmp.css";
 import axios from 'axios';
 
 const AddNewEmp = () => {

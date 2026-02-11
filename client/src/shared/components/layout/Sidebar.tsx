@@ -1,5 +1,5 @@
 import React from 'react'
-import '../assets/Components.css'
+import '../../../assets/styles/Components.css'
 
 interface SidebarProps {
   onDocsClick: () => void;
