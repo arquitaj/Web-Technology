@@ -41,7 +41,7 @@ const UploadDoc = () => {
             fileData.append('subject', subject);
             fileData.append('keyword', keyword);
 
-        const response = await axios.post("http://localhost:8080/aims/document/uploadDocument", fileData,{
+        const response = await axios.post("http://localhost:8080/aims/documents/uploadDocument", fileData,{
             headers: {'Content-Type': 'multipart/form-data'}
         });
         if(response.data.success){

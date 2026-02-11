@@ -47,7 +47,7 @@ const SearchDoc = () => {
         <>
             <img src="../public/forward.png" className='tbl-Icon' onClick={() => handleView(item)} />
             <img src="../public/pen.png" className='tbl-Icon'/>
-            <img src="../public/delete.png" className='tbl-Icon'/>
+            <img src="../public/delete.png" className='tbl-Icon' onClick={() => handleDelete(item.documentNo)}/>
             <img src="../public/view.png" className='tbl-Icon'/>
             <img src="../public/download.png" className='tbl-Icon'/>
         </>
@@ -58,8 +58,17 @@ const SearchDoc = () => {
         alert(`Opening Document: ${doc.documentNo}`);
     };
 
+    // To delete specific document
+    const handleDelete = async (documentNo: string) => {
+        alert("I am clicked");
+        const response = await axios.delete(`http://localhost:8080/aims/documents/deleteDocument/${documentNo}`);
+        alert(response.data.message);
+        fetchDocuments();
+    }
+
+    // To display all documents
     const fetchDocuments = async () => {
-    const response = await axios.get("http://localhost:8080/aims/document/allDocuments");
+    const response = await axios.get("http://localhost:8080/aims/documents/allDocuments");
     setDataTable(response.data.documents ?? response.data ?? []);
     
   }

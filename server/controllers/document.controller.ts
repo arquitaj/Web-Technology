@@ -3,12 +3,25 @@ import { Document } from '../models/document.model'
 
 //To fetch all documents
 export const fetchDocuments = async(req: Request, res: Response) => {
-    console.log("I am here!");
     try{
         const documents = await Document.find();
         return res.status(200).json({success: true, message: "Documents fetched successfully", documents});
     }catch(error){
         return res.status(400).json({success: false, message: "Error: ", error})
+    }
+}
+
+// To delete documents
+export const deleteDocument = async(req: Request, res: Response) => {
+    try{
+        const {documentNo} = req.params;
+        console.log(documentNo);
+        const document = await Document.findOneAndDelete({documentNo:documentNo});
+        if(document){
+            return res.status(200).json({success: true, message: "Successfully deleted document"});
+        }
+    }catch(error){
+        return res.status(400).json({success: false, message: "Document not found!"});
     }
 }
 

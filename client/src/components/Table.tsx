@@ -22,7 +22,6 @@ const Table = <T,>({data, columns}: tableProps<T>) => {
                 )}
               </tr>
             </thead>
-            
                 <tbody>
                     {data.length > 0 ? (
                         data.map((item, rowIndex) => (
