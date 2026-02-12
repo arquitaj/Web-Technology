@@ -2,6 +2,7 @@ import {useState, useEffect} from 'react';
 import axios from 'axios';
 import Table, { type columnConfig } from './Table';
 import "../assets/Table.css";
+import EditDocumentModal from './EditDocumentModal';
 
 
 const items = [
@@ -19,7 +20,18 @@ const items = [
     'Memorandum Order'
 ];
 
-interface documentData{
+
+const SearchDoc = () => {
+    const [dataTable, setDataTable] = useState([]);
+    // const [selectDoc, setSelectDoc] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+    const toggleModal = () => {
+        setIsModalOpen(!isModalOpen);
+        alert("I am clicked");
+    }
+
+    interface documentData{
     documentNo: string;
     issuanceType: string;
     series: string;
@@ -27,9 +39,6 @@ interface documentData{
     subject: string;
     keyword: string;
 }
-const SearchDoc = () => {
-    const [dataTable, setDataTable] = useState([]);
-    console.log(dataTable);
 
     const columns: columnConfig<documentData>[] = [
         {header: "No.", key: "documentNo"},
@@ -46,14 +55,25 @@ const SearchDoc = () => {
          render: (item) => (
         <>
             <img src="../public/forward.png" className='tbl-Icon' onClick={() => handleView(item)} />
-            <img src="../public/pen.png" className='tbl-Icon'/>
+            <img src="../public/pen.png" 
+                className='tbl-Icon'  
+                onClick={toggleModal}
+            />
             <img src="../public/delete.png" className='tbl-Icon' onClick={() => handleDelete(item.documentNo)}/>
-            <img src="../public/view.png" className='tbl-Icon' onClick={() => handleViewFile(item.documentNo)}/>
-            <img src="../public/download.png" className='tbl-Icon'/>
+            <img src="../public/download.png" className='tbl-Icon' onClick={() => handleViewFile(item.documentNo)}/>
+            
+          
         </>
       )
     }
     ];
+
+    // For Edit Document and appear the modal EditDocumentModal.tsx
+    // const handleEditDoc = (item: documentData) => {
+    //     setSelectDoc(item.documentNo);
+        
+    // }
+    // To view document
     const handleView = (doc: documentData) => {
         alert(`Opening Document: ${doc.documentNo}`);
     };
@@ -68,11 +88,6 @@ const SearchDoc = () => {
 
     //To view the file
     const handleViewFile = async (documentNo: string) => {
-        // alert("handle view is clicked");
-        // const response = await axios.get(`http://localhost:8080/aims/documents/viewDocument/${documentNo}`);
-        // if(response.status){
-        //     window.open('/api/pdf/698c7664ad6f58038098a9ea', '_blank');
-        // }
         window.open(`http://localhost:8080/aims/documents/viewDocument/${documentNo}`);
     }
 
@@ -147,6 +162,7 @@ const SearchDoc = () => {
         <div className="table-wrapper">
             <Table data={dataTable} columns={columns}/>
         </div>
+          <EditDocumentModal isOpen={isModalOpen} onClose={toggleModal} documentNo="0001" />
     </div>
   );
 }
