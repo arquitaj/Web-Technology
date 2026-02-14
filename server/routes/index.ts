@@ -12,7 +12,7 @@ const rootRouter = Router();
 rootRouter.use('/users', userRouter);
 rootRouter.use('/employees', employeeRouter);  //Router for employees
 rootRouter.use('/login', authRouter);   //Router for Login
-rootRouter.use('/document', documentRouter); //Document
+rootRouter.use('/documents', documentRouter); //Document
 
 // Catch-all for 404s within the API
 rootRouter.use((req, res) => {
