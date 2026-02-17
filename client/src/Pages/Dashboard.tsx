@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import '../assets/Dashboard.css'
-import '../assets/Components.css'
-import Navbar from '../components/Navbar'
-import Sidebar from '../components/Sidebar'
-import DocumentsToggle from '../components/DocumentsToggle'
+import '../assets/styles/Dashboard.css'
+import '../assets/styles/Components.css'
+import Navbar from '../shared/components/layout/Navbar'
+import Sidebar from '../shared/components/layout/Sidebar'
+import DocumentsToggle from '../features/components/documents/DocumentsToggle'
 // import AddDocumentNo from '../components/AddDocumentNo'
-import AddNewEmp from '../components/AddNewEmp'
-import DashboardBanner from '../components/DashboardBanner'
+import AddNewEmp from '../features/components/employees/AddNewEmp'
+import DashboardBanner from '../features/components/dashboard/DashboardBanner'
 
 const Dashboard = () => {
 const [activeView, setActiveView] = useState<"docs" | "addUser" | null>(null);

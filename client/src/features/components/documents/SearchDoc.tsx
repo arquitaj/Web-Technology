@@ -1,8 +1,10 @@
 import {useState, useEffect} from 'react';
 import axios from 'axios';
-import Table, { type columnConfig } from './Table';
-import "../assets/Table.css";
+import Table, { type columnConfig } from '../../../shared/components/ui/Table';
+import "../../../assets/styles/Table.css";
 import EditDocumentModal from './EditDocumentModal';
+import "../../../assets/styles/SearchDoc.css";
+import ShareDocumentModal from './ShareDocumentModal';
 
 
 const items = [
@@ -19,6 +21,7 @@ const items = [
     'Project Contract',
     'Memorandum Order'
 ];
+
 
 
 const SearchDoc = () => {
@@ -40,6 +43,10 @@ const SearchDoc = () => {
     keyword: string;
 }
 
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+    const toggleShareModal = () => setIsShareModalOpen(!isShareModalOpen);
+
     const columns: columnConfig<documentData>[] = [
         {header: "No.", key: "documentNo"},
         {header: "Type", key: "issuanceType"},
@@ -54,7 +61,7 @@ const SearchDoc = () => {
          key: "actions",
          render: (item) => (
         <>
-            <img src="../public/forward.png" className='tbl-Icon' onClick={() => handleView(item)} />
+            <img src="../public/forward.png" className='tbl-Icon' onClick={toggleShareModal}  />
             <img src="../public/pen.png" 
                 className='tbl-Icon'  
                 onClick={toggleModal}
@@ -102,69 +109,77 @@ const SearchDoc = () => {
     fetchDocuments();
   }, []);
 
-  return (
-    <div>
-        <div className="container">
-        <h2 className="text-center">Search Documents</h2>
-        
+return (
+  <div className="searchdoc-layout">
 
-        <form className="d-flex flex-column align-items-center g-3">
-            <div className="row w-100 justify-content-center">
-                <div className="col-md-6 mb-3">
-                <label htmlFor="inputState" className="form-label">Issuance Type</label>
-                <select id="inputState" className="form-select text-center">
-                    {items.map(item => (
-                    <option key={item}>{item}</option>
-                    ))}
-                </select>
-                </div>
+    
+    <div className="searchdoc-filters">
+      <div className="searchdoc-card">
+        <h4 className="text-center mb-3">Search Documents</h4>
+
+        <form className="d-flex flex-column">
+
+          <div className="mb-3">
+            <label className="form-label">Issuance Type</label>
+            <select className="form-select">
+              {items.map(item => (
+                <option key={item}>{item}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label className="form-label">Issuance No.</label>
+              <input type="text" className="form-control" />
             </div>
 
-            <div className="row w-100 justify-content-center">
-                <div className="col-md-3 mb-3">
-                <label htmlFor="inssuaceNo" className="form-label">Issuance No.</label>
-                <input type="text" className="form-control" id="inssuaceNo" />
-                </div>
-
-                <div className="col-md-3 mb-3">
-                <label htmlFor="series" className="form-label">Series</label>
-                <input type="text" className="form-control" id="series" />
-                </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label">Series</label>
+              <input type="text" className="form-control" />
             </div>
+          </div>
 
-            <div className="row justify-content-center w-100">
-                <div className="col-md-6 mb-3">
-                    <label htmlFor="date" className="form-label">Date</label>
-                    <input type="date" className="form-control" id="date" />
-                </div>
-            </div>
+          <div className="mb-3">
+            <label className="form-label">Date</label>
+            <input type="date" className="form-control" />
+          </div>
 
+          <div className="mb-3">
+            <label className="form-label">Subject</label>
+            <input type="text" className="form-control" />
+          </div>
 
-            <div className="row w-100 justify-content-center">
-                <div className="col-md-6 mb-3">
-                    <label htmlFor="inputSubject" className="form-label">Subject</label>
-                    <input type="text" className="form-control" id="inputSubject" />
-                </div>
-            </div>
+          <div className="mb-3">
+            <label className="form-label">Key Words</label>
+            <input type="text" className="form-control" />
+          </div>
 
-            <div className="row w-100 justify-content-center">
-                <div className="col-md-6 mb-3 ">
-                    <label htmlFor="inputKeyWords" className="form-label">Key Words</label>
-                    <input type="text" className="form-control" id="inputKeyWords"/>
-                </div>
-            </div>
-            <div className="mb-3">
-            <button type="submit" className="btn btn-primary">Search</button>
-            </div>
+          <button type="submit" className="btn btn-primary searchdoc-btn">
+            Search
+          </button>
+
         </form>
-
-        </div>
-        <div className="table-wrapper">
-            <Table data={dataTable} columns={columns}/>
-        </div>
-          <EditDocumentModal isOpen={isModalOpen} onClose={toggleModal} documentNo="0001" />
+      </div>
     </div>
-  );
+
+    
+    <div className="searchdoc-table">
+      <Table data={dataTable} columns={columns}/>
+    </div>
+
+    <EditDocumentModal
+      isOpen={isModalOpen}
+      onClose={toggleModal}
+      documentNo="0001"
+    />
+
+    <ShareDocumentModal
+      isOpen={isShareModalOpen}
+      onClose={toggleShareModal}
+    />
+  </div>
+);
 }
 
 export default SearchDoc;   

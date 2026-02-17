@@ -1,4 +1,5 @@
 import {useState} from 'react'
+import "../../../assets/styles/EditDocumentModal.css";
 
 const items = [
     '--SELECT--',
@@ -55,8 +56,8 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, d
   return (
     
     <>
-      <div style={overlayStyle}>
-        <div style={modalStyle}>
+      <div className="modal-overlay">
+        <div className="modal-container">
           <h2 className="text-center">Edit Document No. {documentNo}</h2>
           <form className="d-flex flex-column align-items-center g-3">
         <div className="row justify-content-center w-100">
@@ -135,29 +136,24 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, d
                 </div>
             </div>
 
-            <div className="row w-100 justify-content-center">
-                <div className="col-md-6 mb-3 ">
-                    <label htmlFor="inputKeyWords" className="form-label">Key Words</label>
-                    <input 
-                        type="text" 
-                        className="form-control" 
-                        id="inputKeyWords"
-                        autoComplete='off'
-                        value={keyword}
-                        onChange={(e) => setKeyword(e.target.value)}/>
-                </div>
-            </div>
             <div className="row w-100 justify-content-center align-items-center">
-              <div className="col-md-2 mb-3">
-              <button type="submit" className="btn btn-primary" >Upload</button>
-              </div>
-              <div className="col-md-2 mb-3">
-              <button type="submit" className="btn btn-primary color-red">Cancel</button>
-              </div>   
+            <div className="col-md-2 mb-3">
+                  <button type="submit" className="btn btn-primary modal-btn-upload">
+                        Upload
+                </button>
+            </div>
+
+            <div className="col-md-2 mb-3">
+                <button type="submit" className="btn btn-primary modal-btn-cancel">
+                Cancel
+                </button>
+            </div>
             </div>
 
         </form>
-          <button onClick={onClose}>Close</button>
+          <button className="modal-close" onClick={onClose}>
+            Close
+        </button>
         </div>
       </div>
     </> 

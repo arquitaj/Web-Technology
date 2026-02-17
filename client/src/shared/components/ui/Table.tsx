@@ -1,4 +1,4 @@
-import "../assets/IncomingDoc.css";
+import "../../../assets/styles/IncomingDoc.css";
 
 export interface columnConfig<T>{
     header: string;
