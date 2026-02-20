@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {useState, useEffect} from 'react';
 import axios from 'axios';
 import Table, { type columnConfig } from '../../../shared/components/ui/Table';
@@ -26,21 +27,22 @@ const items = [
 
 const SearchDoc = () => {
     const [dataTable, setDataTable] = useState([]);
-    // const [selectDoc, setSelectDoc] = useState<string | null>(null);
+    const [selectedDoc, setSelectedDoc] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-    const toggleModal = () => {
+    const toggleModal = (item: any = null) => {
+        setSelectedDoc(item);
         setIsModalOpen(!isModalOpen);
-        alert("I am clicked");
     }
 
     interface documentData{
-    documentNo: string;
-    issuanceType: string;
-    series: string;
-    date: string;
-    subject: string;
-    keyword: string;
+      selectedData: any;
+      documentNo: string;
+      issuanceType: string;
+      series: string;
+      date: string;
+      subject: string;
+      keyword: string;
 }
 
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -64,7 +66,7 @@ const SearchDoc = () => {
             <img src="../public/forward.png" className='tbl-Icon' onClick={toggleShareModal}  />
             <img src="../public/pen.png" 
                 className='tbl-Icon'  
-                onClick={toggleModal}
+                onClick={() => toggleModal(item)}
             />
             <img src="../public/delete.png" className='tbl-Icon' onClick={() => handleDelete(item.documentNo)}/>
             <img src="../public/download.png" className='tbl-Icon' onClick={() => handleViewFile(item.documentNo)}/>
@@ -75,15 +77,10 @@ const SearchDoc = () => {
     }
     ];
 
-    // For Edit Document and appear the modal EditDocumentModal.tsx
-    // const handleEditDoc = (item: documentData) => {
-    //     setSelectDoc(item.documentNo);
-        
-    // }
     // To view document
-    const handleView = (doc: documentData) => {
-        alert(`Opening Document: ${doc.documentNo}`);
-    };
+    // const handleView = (doc: documentData) => {
+    //     alert(`Opening Document: ${doc.documentNo}`);
+    // };
 
     // To delete specific document
     const handleDelete = async (documentNo: string) => {
@@ -170,8 +167,8 @@ return (
 
     <EditDocumentModal
       isOpen={isModalOpen}
-      onClose={toggleModal}
-      documentNo="0001"
+      onClose={() => toggleModal (null)}
+      selectedData={selectedDoc}
     />
 
     <ShareDocumentModal

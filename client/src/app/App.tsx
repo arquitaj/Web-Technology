@@ -1,30 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react'
 import '../assets/styles/App.css'
 // import Alert from './components/Alert'
 // import Dashboard from './Pages/Dashboard'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios';
+import {GoogleLogin, type CredentialResponse } from '@react-oauth/google';
+import {jwtDecode} from "jwt-decode"
+
 
 function App() {
   const navigate = useNavigate();
-  // const [array, setArray] = useState([]);
-  // Create states for the inputs
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // const fetchApi = async () => {
-  //   const response = await axios.get("http://localhost:8080/api");
-  //   setArray(response.data.fruits);
-  //   console.log(response.data.fruits);
-  // }
-  // useEffect(() => {
-  //   // eslint-disable-next-line react-hooks/set-state-in-effect
-  //   fetchApi();
-  // },[]);
-
+  const googleLogin = async (credentialResponse: CredentialResponse) =>{
+    const decoded: any = jwtDecode(credentialResponse.credential);
+    try{
+      const response = await axios.post("http://localhost:8080/aims/login/AOuth", {
+        email: decoded.email
+      })
+      if(response.data.success){
+        alert(response.data.message);
+        navigate("/Dashboard");
+      };
+    }catch(error: any){
+      alert(error.response?.data?.message || "Login failed");
+    }
+  }
   const handleLogin = async () =>{
     try{
-      const response = await axios.post("http://localhost:8080/aims/login/auth", {
+      const response = await axios.post("http://localhost:8080/aims/login/credential", {
         username: username,
         password: password
       });
@@ -41,17 +47,9 @@ function App() {
 
   return (
     <>
-    
-      <div className='signUp'>
+      
+        <div className='signUp'>
         <form className='loginForm'>
-          
-      {/* {
-        array.map((fruit, index) => (
-          <div key={index}>
-            <p>{fruit}</p>
-          </div>
-        ))
-      } */}
           <h1>Login</h1>
           <h2>Login to your account</h2>
           <div className='inputGroup'>
@@ -74,9 +72,21 @@ function App() {
               />
             <button type="button" className="btn btn-primary" onClick={handleLogin}>Login</button>
           </div>
+          <div className="mt-3">
+            <GoogleLogin 
+              onSuccess={googleLogin}
+              onError={() => console.log("Login Failed")}
+            />
+          </div>
+            {/* <div>
+              <button type="button" className="btn mt-2 btn-light">
+                <img src="../public/google.png" className='google-image' onClick={() => login()}/>
+              </button>
+            </div> */}
         </form>
-        
       </div>
+      
+      
      
     </>
   )
