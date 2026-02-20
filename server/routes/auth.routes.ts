@@ -1,7 +1,7 @@
 import {Router} from 'express';
-import { loginUser } from '../controllers/auth.controller';
+import { loginUser, googleOAuth } from '../controllers/auth.controller';
 
 const router = Router();
-router.use('/auth', loginUser);
-
+router.post('/credential', loginUser);
+router.post('/AOuth', googleOAuth);
 export default router;
