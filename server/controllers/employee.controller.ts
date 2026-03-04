@@ -48,10 +48,6 @@ export const updateEmployee = async(req: Request, res: Response) => {
     try{
         const {userID} = req.params;
         const {fname, mname, lname, email, userName, password, role} = req.body;
-        console.log("userID", userID);
-        console.log("fname", fname);
-        console.log("mname", mname);
-        console.log("lname", lname);
         const filter = {userID:userID};
         const update = {
             firstName : fname,

@@ -1,5 +1,8 @@
 import { Response, Request } from "express";
 import { Document } from '../models/document.model'
+import {storage} from '../config/firebase'
+import {ref, uploadBytes, getDownloadURL, deleteObject} from 'firebase/storage'
+import { addEmployee } from "./employee.controller";
 
 //To fetch all documents
 export const fetchDocuments = async(req: Request, res: Response) => {
@@ -15,8 +18,10 @@ export const fetchDocuments = async(req: Request, res: Response) => {
 export const deleteDocument = async(req: Request, res: Response) => {
     try{
         const {documentNo} = req.params;
-        console.log(documentNo);
+        const {file} = req.body;
         const document = await Document.findOneAndDelete({documentNo:documentNo});
+        const urlFile = ref(storage, file);
+        await deleteObject(urlFile);
         if(document){
             return res.status(200).json({success: true, message: "Successfully deleted document"});
         }
@@ -27,19 +32,62 @@ export const deleteDocument = async(req: Request, res: Response) => {
 
 //To view document
 export const viewDocument = async(req:Request, res: Response) => {
-    try{
+    try{ 
         const {documentNo} = req.params;
-        const document = await Document.findOne({documentNo:documentNo});
-        if(document && document.file){
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('X-Content-Type-Options', 'nosniff');
-            res.setHeader('Content-Disposition', `inline; filename="${document.documentNo}.pdf"`);
-            return res.send(document.file);
-        }else{
-            return res.status(400).json({success: false, message: "File not found!"});
-        }
+        const {file, issuanceType} = req.body;
+        const urlFile = ref(storage, file);
+        const openInNewTab = (url: string) => {
+            window.open(url, "_blank");
+        };
     }catch(error){
         return res.status(400).json({success: false, message: "Error to load the file!"});
+    }
+}
+
+// To updatedDocument
+export const updateDocument = async(req: Request, res: Response) => {
+    try{
+        const fileData = req.file;
+        const {documentNo, newDocumentNo ,issuanceType, series, date, subject, keyword, oldFile, newFile} = req.body;
+        
+        let urlFile = oldFile;
+        if(fileData){
+            const fileRef = ref(storage, oldFile);
+            await deleteObject(fileRef);
+            // To save the image
+            console.log("New image", fileData.originalname);
+            const imageRef = ref(storage, `${issuanceType}/${fileData?.originalname}`);
+            await uploadBytes(imageRef, fileData.buffer, {
+                contentType: fileData.mimetype,
+            });
+            urlFile = await getDownloadURL(imageRef);
+            console.log("New URL: ", urlFile);
+        }
+        console.log("old File is : "+urlFile);
+         const filter = {documentNo:documentNo};
+            const update = {
+                documentNo : newDocumentNo,
+                issuanceType : issuanceType,
+                series : series,
+                date : date,
+                subject : subject,
+                keyword : keyword,
+                file: urlFile,
+                employeeID: "00001"
+            };
+
+            const response = await Document.findOneAndUpdate(filter, update,{
+                new: true,
+                runValidators: true //to ensure the schema validation
+            });
+
+            if(!response){
+                return res.status(400).json({success: false, message:"Document doesn't exist!"});
+            }else{
+                return res.status(200).json({success: true, message:"Successfully updated Document!"});
+            }
+    }catch(error){
+        return res.status(400).json({success: false, message: "Error to Update file!"});
     }
 }
 //To addDocuments
@@ -47,8 +95,21 @@ export const addDocument = async(req: Request, res: Response) => {
     try{
         const fileData = req.file;
         const {documentNo, issuanceType, series, date, subject, keyword, file} = req.body;
+
+         // Check if document already exists
+        const existingDoc = await Document.findOne({ documentNo });
+        if (existingDoc) {
+            return res.status(401).json({ success: false, message: "Document already exists!" });
+        }
         const response = await Document.findOne({documentNo:documentNo});
         if(!response){
+             // To save the image
+            const imageRef = ref(storage, `${issuanceType}/${fileData.originalname}`);
+            await uploadBytes(imageRef, fileData.buffer, {
+                contentType: fileData.mimetype,
+            });
+            const url = await getDownloadURL(imageRef);
+
             const newDocument = new Document({
                 documentNo : documentNo,
                 issuanceType : issuanceType,
@@ -56,11 +117,13 @@ export const addDocument = async(req: Request, res: Response) => {
                 date : date,
                 subject : subject,
                 keyword : keyword,
-                file : fileData?.buffer,
+                file : url,
                 uploadDate : new Date(),
                 employeeID : "00001",
             })
             await newDocument.save();
+           
+
             return res.status(200).json({success: true, message: "Successfully upload new document!"});
         }else{
             return res.status(401).json({success: false, message: "Document already exist!"});
@@ -70,3 +133,4 @@ export const addDocument = async(req: Request, res: Response) => {
         
     }
 }
+

@@ -24,21 +24,24 @@ const items = [
 ];
 
 
-
 const SearchDoc = () => {
     const [dataTable, setDataTable] = useState([]);
     const [selectedDoc, setSelectedDoc] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
     const toggleModal = (item: any = null) => {
-        setSelectedDoc(item);
-        setIsModalOpen(!isModalOpen);
+      setSelectedDoc(item);
+      setIsModalOpen(!isModalOpen);
+      if(isModalOpen){ // modal is being closed
+        fetchDocuments(); // refresh table
+      }
     }
 
     interface documentData{
       selectedData: any;
       documentNo: string;
       issuanceType: string;
+      file: string;
       series: string;
       date: string;
       subject: string;
@@ -53,14 +56,12 @@ const SearchDoc = () => {
         {header: "No.", key: "documentNo"},
         {header: "Type", key: "issuanceType"},
         {header: "Series", key: "series"},
-        {header: "Date", 
-         key: "date",
+        {header: "Date", key: "date",
          render: (item) => new Date(item.date).toLocaleDateString('en-PH')
         },
         {header: "Subject", key: "subject"},
         {header: "Keyword", key: "keyword"},
-        {header: "Action",
-         key: "actions",
+        {header: "Action", key: "actions",
          render: (item) => (
         <>
             <img src="../public/forward.png" className='tbl-Icon' onClick={toggleShareModal}  />
@@ -68,31 +69,24 @@ const SearchDoc = () => {
                 className='tbl-Icon'  
                 onClick={() => toggleModal(item)}
             />
-            <img src="../public/delete.png" className='tbl-Icon' onClick={() => handleDelete(item.documentNo)}/>
-            <img src="../public/download.png" className='tbl-Icon' onClick={() => handleViewFile(item.documentNo)}/>
-            
-          
+            <img src="../public/delete.png" className='tbl-Icon' onClick={() => handleDelete(item.documentNo, item.file)}/>
+            <img src="../public/download.png" className='tbl-Icon' onClick={() => handleViewFile(item.file)}/>
         </>
       )
     }
     ];
 
-    // To view document
-    // const handleView = (doc: documentData) => {
-    //     alert(`Opening Document: ${doc.documentNo}`);
-    // };
-
     // To delete specific document
-    const handleDelete = async (documentNo: string) => {
-        alert("I am clicked");
-        const response = await axios.delete(`http://localhost:8080/aims/documents/deleteDocument/${documentNo}`);
+    const handleDelete = async (documentNo: string, file: string) => {
+        const response = await axios.delete(`http://localhost:8080/aims/documents/deleteDocument/${documentNo}`, {
+          data: {file}
+        });
         alert(response.data.message);
         fetchDocuments();
     }
 
-    //To view the file
-    const handleViewFile = async (documentNo: string) => {
-        window.open(`http://localhost:8080/aims/documents/viewDocument/${documentNo}`);
+    const handleViewFile = async (file: string) => {
+        window.open(file, "_blank");
     }
 
     // To display all documents

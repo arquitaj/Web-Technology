@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {useState, useEffect} from 'react'
 import "../../../assets/styles/EditDocumentModal.css";
+import axios from 'axios';
 
 const items = [
     '--SELECT--',
@@ -17,31 +19,74 @@ const items = [
     'Memorandum Order'
 ];
 
+
 interface EditDocumentModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedData: any;
-
 }
+
 
 const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, selectedData}) => {
   // 2. Initialize state with empty values
   const [documentNo, setDocumentNo] = useState("");
+  const [newDocumentNo, setNewDocumentNo] = useState("");
   const [issuanceType, setIssuanceType] = useState("");
   const [series, setSeries] = useState("");
   const [date, setDate] = useState("");
   const [subject, setSubject] = useState("");
   const [keyword, setKeyword] = useState("");
+  const [oldFile, setOldFile] = useState<string>("");   // existing Firebase file URL
+  const [newFile, setNewFile] = useState<File | null>(null);  // new uploaded file
   
-  
+  const updateData = async (e: { preventDefault: () => void; }) => {
+    e.preventDefault(); 
+   
+    const fileData = new FormData();
+    fileData.append('documentNo', documentNo);
+    fileData.append('newDocumentNo', newDocumentNo);
+    fileData.append('issuanceType', issuanceType);
+    fileData.append('series', series);
+    fileData.append('date', date);
+    fileData.append('subject', subject);
+    fileData.append('keyword', keyword);
+    fileData.append('oldFile', oldFile);
+    // ✅ Only append if file exists
+    if (newFile) {
+        fileData.append('myFile', newFile);
+    }
+
+    const response = await axios.put("http://localhost:8080/aims/documents/updateDocument", fileData,{
+            headers: {'Content-Type': 'multipart/form-data'}
+    });
+    if(response.data.success){
+        alert(response.data.message);
+    }
+  }
+
+  const handleClose = () => {
+    setDocumentNo("");
+    setNewDocumentNo("");
+    setIssuanceType("");
+    setSeries("");
+    setDate("");
+    setSubject("");
+    setKeyword("");
+    setOldFile("");
+    setNewFile(null);
+
+  onClose(); // actually close modal
+};
+
   useEffect(() => {
     if(isOpen && selectedData){
-      setDocumentNo(selectedData.documentNo);
-      setIssuanceType(selectedData.issuanceType);
-      setSeries(selectedData.series);
-      setSubject(selectedData.subject);
-      setKeyword(selectedData.keyword);
-
+      setDocumentNo(selectedData.documentNo || "");
+      setNewDocumentNo(selectedData.documentNo || "");
+      setIssuanceType(selectedData.issuanceType || "");
+      setSeries(selectedData.series || "");
+      setSubject(selectedData.subject || "");
+      setKeyword(selectedData.keyword || "");
+      setOldFile(selectedData.file || "");
       // --- DATE FORMATTING LOGIC ---
         if (selectedData.date) {
             const rawDate = new Date(selectedData.date);
@@ -56,12 +101,13 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
         } else {
             setDate("");
         }
+        
     }
-  })
-
+  },[isOpen, selectedData]);
 
   if(!isOpen) return null;
   return (
+    
     <>
       <div className="modal-overlay">
         <div className="modal-container">
@@ -74,10 +120,14 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
             className="form-control" 
             type="file" 
             id="formFile"
+            onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                    setNewFile(e.target.files[0]);
+                }
+            }}
             />
         </div>
         </div>
-
             <div className="row w-100 justify-content-center">
                 <div className="col-md-6 mb-3">
                 <label htmlFor="inputState" className="form-label">Issuance Type</label>
@@ -101,8 +151,8 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
                     type="text" 
                     className="form-control" 
                     id="inssuaceNo"
-                    value={documentNo} 
-                    onChange={(e) => setDocumentNo(e.target.value)}
+                    value={newDocumentNo} 
+                    onChange={(e) => setNewDocumentNo(e.target.value)}
                     />
                 </div>
 
@@ -159,13 +209,13 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
 
             <div className="row w-100 justify-content-center align-items-center">
             <div className="col-md-2 mb-3">
-                  <button type="submit" className="btn btn-primary modal-btn-upload">
-                        Upload
+                  <button type="submit" className="btn btn-primary modal-btn-upload" onClick={updateData}>
+                        Update
                 </button>
             </div>
 
             <div className="col-md-2 mb-3">
-                <button type="submit" className="btn btn-primary modal-btn-cancel">
+                <button type="button" className="btn btn-primary modal-btn-cancel" onClick={handleClose}>
                 Cancel
                 </button>
             </div>

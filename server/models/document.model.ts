@@ -7,7 +7,7 @@ export const Document = model ('Document', new Schema({
     date: {type: Date, required: true},
     subject: {type: String, required: false},
     keyword: {type: String, required: false},
-    file: {type: Buffer, required: true},
-    uploadDate: {type: Date, required: true},
+    file: {type: String, required: true},
+    uploadDate: {type: Date, required: false},
     employeeID: {type: String, require: true},
 }, {collection: "document"}));

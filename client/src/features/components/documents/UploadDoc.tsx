@@ -50,9 +50,10 @@ const UploadDoc = () => {
         
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }catch(error: any){
-            alert(error.response?.data?.message || "Failed to Add New Employee!");
+            alert(error.response?.data?.message || "Failed to Add New Document!");
         }
   }
+
 
   return (
     <div>
