@@ -15,7 +15,7 @@ function App() {
   const [password, setPassword] = useState("");
 
   const googleLogin = async (credentialResponse: CredentialResponse) =>{
-    const decoded: any = jwtDecode(credentialResponse.credential);
+    const decoded: any = jwtDecode(credentialResponse.credential);  // Decode the Google credential payload to read the authenticated email address.
     try{
       const response = await axios.post("http://localhost:8080/aims/login/AOuth", {
         email: decoded.email
