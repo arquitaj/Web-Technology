@@ -23,6 +23,7 @@ function App() {
       })
       if(response.data.success){
         alert(response.data.message);
+        // Redirect user to dashboard after successful login
         navigate("/Dashboard");
       };
     }catch(error: any){

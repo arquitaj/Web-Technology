@@ -4,6 +4,7 @@ import {useState, useEffect} from 'react'
 import "../../../assets/styles/EditDocumentModal.css";
 import axios from 'axios';
 
+// List of available issuance types used to populate the dropdown select
 const items = [
     '--SELECT--',
     'Administrative Order',
@@ -19,13 +20,12 @@ const items = [
     'Memorandum Order'
 ];
 
-
+// Props passed from parent component to control modal behavior and provide selected document data
 interface EditDocumentModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedData: any;
 }
-
 
 const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, selectedData}) => {
   // 2. Initialize state with empty values
@@ -36,9 +36,14 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
   const [date, setDate] = useState("");
   const [subject, setSubject] = useState("");
   const [keyword, setKeyword] = useState("");
-  const [oldFile, setOldFile] = useState<string>("");   // existing Firebase file URL
-  const [newFile, setNewFile] = useState<File | null>(null);  // new uploaded file
+
+  // Holds the current file URL already stored in Firebase / database
+  const [oldFile, setOldFile] = useState<string>("");
+
+  // Holds the newly uploaded file selected by the user (if they replace the document)
+  const [newFile, setNewFile] = useState<File | null>(null);
   
+  // Handles updating the document data and sending it to the backend API
   const updateData = async (e: { preventDefault: () => void; }) => {
     e.preventDefault(); 
    
@@ -55,10 +60,12 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
     if (newFile) {
         fileData.append('myFile', newFile);
     }
-
+    
+    // Send PUT request to backend to update document record
     const response = await axios.put("http://localhost:8080/aims/documents/updateDocument", fileData,{
             headers: {'Content-Type': 'multipart/form-data'}
     });
+    // Notify user if update was successful
     if(response.data.success){
         alert(response.data.message);
     }
