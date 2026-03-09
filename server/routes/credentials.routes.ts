@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import { getAllUsers, getUserById } from '../controllers/credentials.controller';
 
+
 const router = Router();
 
 // Routes are relative to where this is "mounted" in index.ts
