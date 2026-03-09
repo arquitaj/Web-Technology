@@ -5,10 +5,17 @@ import axios from 'axios';
 
 const AddNewEmp = () => {
   // Create states for user inputs
+  // Controls visibility of the delete confirmation modal
   const [showModal, setShowModal] = useState(false);
+
+  // Stores the ID of the employee currently being edited (null means creating a new employee) 
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Stores the list of employees retrieved from the backend API
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [users, setUsers] = useState<any[]>([]);
+
+  // Form input states
   const [userID, setEmployeeID] = useState("")
   const [fname, setFname] = useState("");
   const [mname, setMname] = useState("");
@@ -19,15 +26,20 @@ const AddNewEmp = () => {
   const [role, setRole] = useState("");
     
   const fetchEmployees = async () => {
+   
+    // Fetch all employees from backend API 
     const response = await axios.get("http://localhost:8080/aims/employees/allEmployees");
+    
+    // Store employee data in state (handles different response formats)
     setUsers(response.data.users ?? response.data ?? []);
   }
   useEffect (() =>{
+    // Runs only once when the component mounts to initially load employees
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchEmployees();
   }, []);
 
-//To empty input Fields
+  // Clears all form fields and resets editing mode
   function emptyInputComponents() {
     setEmployeeID("");
     setFname("");
@@ -40,8 +52,14 @@ const AddNewEmp = () => {
     setEditingId(null);
   }
   const handleUpdate = (index: number)=>{
+
+    // Retrieve selected employee from table based on index and store in selectedUser variable
     const selectedUser = users[index];
+
+    // Switch component to editing mode by setting editingId to the selected employee's ID and populating form fields with their data
     setEditingId(selectedUser.userID);
+    
+    // Populate form fields with selected employee data to allow user to edit existing employee information
     setEmployeeID(selectedUser.userID); 
     setFname(selectedUser.firstName);
     setMname(selectedUser.middleName);
@@ -54,9 +72,15 @@ const AddNewEmp = () => {
 
   const handlebtnDelete = async() => {
     try{
+
+      // Send DELETE request to backend to remove employee by ID
       const response = await axios.delete(`http://localhost:8080/aims/employees/deleteEmployee/${userID}`);
       alert(response.data.message);
+      
+      // Refresh employee list after deletion
       fetchEmployees();
+
+      // Close confirmation modal
       setShowModal(false);
     }catch(error){
       alert(error);
@@ -64,6 +88,8 @@ const AddNewEmp = () => {
   }
     const handlebtnRegister= async () => {
     try{
+
+      // If editingId is null → create a new employee
       if(editingId === null){
         const response = await axios.post("http://localhost:8080/aims/employees/addEmployee", {
         userID: userID,
@@ -76,12 +102,21 @@ const AddNewEmp = () => {
         role: role
       });
       if(response.data.success){
+
+        // Update local employee list with the newly created employee (handles different response formats) 
         setUsers(response.data.users);
+
         alert(response.data.message);
+
+        // Refresh employee table from server after successful creation to ensure data consistency (handles different response formats)
         fetchEmployees();
+        
+        // Clear form inputs and reset editing mode after successful creation
         emptyInputComponents();
       }
       }else{
+        
+        // If editingId exists → update existing employee
         alert(userID);
         const response = await axios.put(`http://localhost:8080/aims/employees/updateEmployee/${userID}`, {
           fname: fname,
@@ -93,12 +128,17 @@ const AddNewEmp = () => {
           role: role
         });
         alert(response.data.message);
+        
+        // Refresh employee list after update to reflect changes (handles different response formats)
         fetchEmployees();
+
+        // Reset form and exit editing mode after successful update  
         emptyInputComponents();
       }
+      
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }catch(error: any){
-      // Axios throws an error for 401/500 status codes
+      // Handles backend errors Axios throws an error for (401, 500, validation errors, etc.)
       alert(error.response?.data?.message || "Failed to Add New Employee!");
     }
 
