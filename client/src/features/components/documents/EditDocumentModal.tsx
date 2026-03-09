@@ -203,7 +203,7 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
                         id="inputKeyword"
                         autoComplete='off'
                         value={keyword}
-                        onChange={(e) => setSubject(e.target.value)} />
+                        onChange={(e) => setKeyword(e.target.value)} />
                 </div>
             </div>
 

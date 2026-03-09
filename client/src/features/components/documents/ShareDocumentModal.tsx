@@ -1,5 +1,7 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect } from "react";
 import "../../../assets/styles/ShareDocumentModal.css";
+import axios from "axios";
 
 interface ShareDocumentModalProps {
   isOpen: boolean;
@@ -7,35 +9,63 @@ interface ShareDocumentModalProps {
 }
 
 interface User {
-  name: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
   email: string;
 }
-
-const dummyUsers: User[] = [
-  { name: "John Doe", email: "john@gmail.com" },
-  { name: "Jane Smith", email: "jane@gmail.com" },
-  { name: "Alice Cooper", email: "alice@gmail.com" },
-  { name: "Bob Marley", email: "bob@gmail.com" },
-  { name: "Alice Williams", email: "alice.williams@gmail.com" },
-  { name: "Charlie Brown", email: "charlie.brown@gmail.com" },
-  { name: "Emily Davis", email: "emily.davis@gmail.com" },
-  { name: "Michael Scott", email: "michael.scott@gmail.com" },
-];
 
 const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
   isOpen,
   onClose,
 }) => {
   const [search, setSearch] = useState("");
-  const [selectedUser, setSelectedUser] = useState<number | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const [usersEmail, setUsersEmail] = useState<User[]>([]);
+
+  const fetchEmployees = async () => {
+    const response = await axios.get("http://localhost:8080/aims/employees/allEmployees");
+    setUsersEmail(response.data.users ?? response.data ?? []);
+  }
+
+  useEffect (() =>{
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchEmployees();
+  }, []);
 
   if (!isOpen) return null;
 
-  const filteredUsers = dummyUsers.filter(
-    (user) =>
-      user.name.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers = usersEmail.filter((user) => {
+    const keyword = search.toLowerCase();
+      return (
+        user.firstName.toLowerCase().includes(keyword) ||
+        user.middleName.toLowerCase().includes(keyword) ||
+        user.lastName.toLowerCase().includes(keyword) ||
+        user.email.toLowerCase().includes(keyword)
+      );
+  });
+
+  const toggleUserSelection = (user: User) => {
+    const exists = selectedUsers.find((u) => u.email === user.email);
+
+    if (exists) {
+      setSelectedUsers(selectedUsers.filter((u) => u.email !== user.email));
+    } else {
+      setSelectedUsers([...selectedUsers, user]);
+    }
+    setSearch(""); // clear search so user can search again
+  };
+
+  const handleShare = async () => {
+    const emails = selectedUsers.map((u) => u.email);
+    await axios.post("http://localhost:8080/aims/email/sendEmail", {
+      emails: emails,
+      subject: "Document Shared With You",
+      message: "A document has been shared with you. Please check the system."
+    });
+
+    alert("Email notifications sent!");
+  };
 
   return (
     <div className="share-modal-overlay">
@@ -45,8 +75,26 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
           type="text"
           placeholder="Search users..."
           className="form-control share-modal-search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={
+             selectedUsers.length
+            ? selectedUsers.map((u) => u.email).join(", ") + ", " + search
+            : search
+          }
+          onChange={(e) => {
+            const value = e.target.value;
+            const lastComma = value.lastIndexOf(",");
+
+            if (lastComma !== -1) {
+              setSearch(value.substring(lastComma + 1).trim());
+            } else {
+              setSearch(value);
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Backspace" && search === "" && selectedUsers.length > 0) {
+              setSelectedUsers(selectedUsers.slice(0, -1));
+            }
+          }}
         />
 
         <div className="share-modal-users">
@@ -54,12 +102,12 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
             <div
               key={index}
               className={`share-modal-user ${
-                selectedUser === index ? "selected" : ""
+                selectedUsers.some((u) => u.email === user.email) ? "selected" : ""
               }`}
-              onClick={() => setSelectedUser(index)}
+              onClick={() => toggleUserSelection(user)}
             >
               <div>
-                <strong>{user.name}</strong>
+                <strong>{user.firstName+" "+user.middleName+" "+user.lastName}</strong>
                 <div className="share-modal-email">{user.email}</div>
               </div>
             </div>
@@ -76,7 +124,7 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
           >
             Cancel
           </button>
-          <button className="btn btn-primary">Share</button>
+          <button className="btn btn-primary" onClick={handleShare}>Share</button>
         </div>
       </div>
     </div>

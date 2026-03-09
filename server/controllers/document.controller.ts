@@ -44,6 +44,24 @@ export const viewDocument = async(req:Request, res: Response) => {
     }
 }
 
+// To search documents
+export const searchDocuments = async(req:Request, res: Response) => {
+    try{ 
+        const filters = req.query;
+        const query: Record<string, any> = {};
+        Object.keys(filters).forEach((key) => {
+            const value = filters[key];
+            if (value) {
+                query[key] = { $regex: value as string, $options: "i" };
+            }
+        });
+        const documents = await Document.find(query);
+        return res.status(200).json({success: true, message: "Documents fetched successfully", documents});       
+    }catch(error){
+        return res.status(400).json({success: false, message: "Error to load the file!"});
+    }
+}
+
 // To updatedDocument
 export const updateDocument = async(req: Request, res: Response) => {
     try{
@@ -122,8 +140,6 @@ export const addDocument = async(req: Request, res: Response) => {
                 employeeID : "00001",
             })
             await newDocument.save();
-           
-
             return res.status(200).json({success: true, message: "Successfully upload new document!"});
         }else{
             return res.status(401).json({success: false, message: "Document already exist!"});
