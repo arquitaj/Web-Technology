@@ -1,11 +1,10 @@
-// src/routes/user.routes.ts
-import { Router } from 'express';
-import { getAllUsers, getUserById } from '../controllers/user.controller';
+import {Router} from 'express';
+import { getAllEmployees, addEmployee, updateEmployee, deleteEmployee } from '../controllers/user.controller';
 
 const router = Router();
-
-// Routes are relative to where this is "mounted" in index.ts
-router.get('/', getAllUsers);      // This will become /api/users/
-router.get('/:id', getUserById);   // This will become /api/users/:id
+router.get('/allEmployees', getAllEmployees);
+router.post('/addEmployee', addEmployee);
+router.put('/updateEmployee/:userID', updateEmployee);
+router.delete('/deleteEmployee/:userID', deleteEmployee);
 
 export default router;
