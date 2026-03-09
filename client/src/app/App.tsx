@@ -70,13 +70,21 @@ function App() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               />
-            <button type="button" className="btn btn-primary" onClick={handleLogin}>Login</button>
-          </div>
-          <div className="mt-3">
+            <button type="button" className="btn-primary text-center btn-login" onClick={handleLogin}>Login</button>
+
+            <div className="d-flex align-items-center my-3">
+              <hr className="flex-grow-1" />
+              <span className="mx-2 text-muted">OR</span>
+              <hr className="flex-grow-1" />
+            </div>
+
+            <div className="w-full d-flex justify-content-center border-0">
             <GoogleLogin 
               onSuccess={googleLogin}
               onError={() => console.log("Login Failed")}
             />
+          </div>
+          
           </div>
             {/* <div>
               <button type="button" className="btn mt-2 btn-light">
