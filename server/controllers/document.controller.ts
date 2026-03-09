@@ -2,7 +2,7 @@ import { Response, Request } from "express";
 import { Document } from '../models/document.model'
 import {storage} from '../config/firebase'
 import {ref, uploadBytes, getDownloadURL, deleteObject} from 'firebase/storage'
-import { addEmployee } from "./employee.controller";
+import { addEmployee } from "./user.controller";
 
 //To fetch all documents
 export const fetchDocuments = async(req: Request, res: Response) => {
