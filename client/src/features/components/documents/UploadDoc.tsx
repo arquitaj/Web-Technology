@@ -1,6 +1,7 @@
 import {useState} from 'react'
 import axios from 'axios';
 
+// List of document issuance types used to populate the dropdown menu
 const items = [
     '--SELECT--',
     'Administrative Order',
@@ -17,6 +18,8 @@ const items = [
 ];
 
 const UploadDoc = () => {
+   
+    // React state hooks to store form input values
     const [documentNo, setDocumentNo] = useState("");
     const [issuanceType, setIssuanceType] = useState("");
     const [series, setSeries] = useState("");
@@ -25,14 +28,23 @@ const UploadDoc = () => {
     const [keyword, setKeyword] = useState("");
     const [file, setFile] = useState<File | null>(null);
 
+    // Handles the upload button click and sends the form data to the backend  
     const handlebtnUpload= async (e: { preventDefault: () => void; }) => {
+        
+        // Prevents the page from refreshing when submitting the form  
         e.preventDefault();
         try{
+            
+            // Ensure that a file is selected before attempting to upload
             if (!file) {
                 alert("Please select a file.");
                 return;
             }
+
+            // FormData is required for sending files via HTTP request 
             const fileData = new FormData();
+
+            // Append the uploaded file and metadata fields to the request body   
             fileData.append('myFile', file);
             fileData.append('documentNo', documentNo);
             fileData.append('issuanceType', issuanceType);
@@ -41,9 +53,13 @@ const UploadDoc = () => {
             fileData.append('subject', subject);
             fileData.append('keyword', keyword);
 
+        // Send POST request to backend API endpoint for document upload
         const response = await axios.post("http://localhost:8080/aims/documents/uploadDocument", fileData,{
+            // Required header for file uploads
             headers: {'Content-Type': 'multipart/form-data'}
         });
+
+        // Display success message if backend confirms upload
         if(response.data.success){
             alert(response.data.message);
         }
@@ -69,6 +85,8 @@ const UploadDoc = () => {
             id="formFile"
             autoComplete='off'
             onChange={(e) => {
+
+                // Capture the selected file from the file input 
                 if (e.target.files && e.target.files[0]) {
                     setFile(e.target.files[0]);
                 }
@@ -84,8 +102,12 @@ const UploadDoc = () => {
                     className="form-select text-center"
                     autoComplete='off'
                     value={issuanceType}
+
+                    // Update issuance type state when user selects a value  
                     onChange={(e) => setIssuanceType(e.target.value)}>
                     {items.map((item, index) => (
+
+                    // Dynamically generate dropdown options from items array    
                     <option key={index} value={item}>{item}</option>
                     ))}
                 </select>
@@ -101,6 +123,8 @@ const UploadDoc = () => {
                     id="inssuaceNo" 
                     autoComplete='off'
                     value={documentNo}
+                    
+                    // Store the issuance number entered by the user  
                     onChange={(e) => setDocumentNo(e.target.value)}/>
                 </div>
 
@@ -112,6 +136,8 @@ const UploadDoc = () => {
                     id="series" 
                     autoComplete='off'
                     value={series}
+                    
+                    // Update the series value in state
                     onChange={(e) => setSeries(e.target.value)}/>
                 </div>
             </div>
@@ -125,6 +151,8 @@ const UploadDoc = () => {
                         id="date" 
                         autoComplete='off'
                         value={date}
+
+                        // Save the selected date to component state
                         onChange={(e) => setDate(e.target.value)}/>
                 </div>
             </div>
@@ -139,6 +167,8 @@ const UploadDoc = () => {
                         id="inputSubject"
                         autoComplete='off'
                         value={subject}
+
+                        // Update subject field in state
                         onChange={(e) => setSubject(e.target.value)} />
                 </div>
             </div>
@@ -152,6 +182,8 @@ const UploadDoc = () => {
                         id="inputKeyWords"
                         autoComplete='off'
                         value={keyword}
+
+                        // Update keyword field in state
                         onChange={(e) => setKeyword(e.target.value)}/>
                 </div>
             </div>
