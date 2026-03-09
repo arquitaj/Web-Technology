@@ -4,11 +4,17 @@ import {User} from '../models/user.model'
 export const googleOAuth = async (req: Request, res: Response) =>{
     
     try{
+        // Extract the email sent from the frontend after Google OAuth authentication
         const {email} = req.body;
+
+        // Check if a user with this email already exists in the database
         const user = await User.findOne({email:email});
+
+        // If the user does not exist, return an error response
         if(!user){
             return res.status(400).json({success: false, message: "User not found!"});
         }else{
+            // If user exists, allow login
             return res.status(200).json({success: true, message: "Login Successfully!"});
         }
     }catch(error){
@@ -18,21 +24,30 @@ export const googleOAuth = async (req: Request, res: Response) =>{
 
 export const loginUser = async (req: Request, res: Response) => {
     try{
+        // Extract login credentials sent from the client
         const {username, password} = req.body;
+        
+        // Find user in the database using the provided username
         const user = await User.findOne({username:username});   //Find User by email
+        
+        // If the user does not exist in the database
         if(!user){
             console.log("User not found!");
             return res.status(400).json({success: false, message: "User not found!"});
         }else{
+
+            // Compare the provided password with the stored password
             if(user.password === password){
                 return res.status(200).json({success: true, message: "Login Successfully!"});
                 console.log("Login Successfully");
             }else{
+                // If password does not match, deny login
                 console.log("Wrong Password");
                 return res.status(400).json({success: false, message: "Wrong password!"});
             }
         }
     }catch(error){
+        // Catch and log any unexpected server errors
         console.log("error: ", error);
     }
 }
