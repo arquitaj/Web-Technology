@@ -8,6 +8,7 @@ interface ShareDocumentModalProps {
   onClose: () => void;
 }
 
+// Defines the structure of user objects received from the backend
 interface User {
   firstName: string;
   middleName: string;
@@ -19,22 +20,39 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
   isOpen,
   onClose,
 }) => {
+
+  // Stores the search input used to filter users
   const [search, setSearch] = useState("");
+
+  // Stores users that have been selected to receive the shared document
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+
+  // Stores the full list of employees fetched from the backend
   const [usersEmail, setUsersEmail] = useState<User[]>([]);
 
+  // Fetch all employees from the backend so they can be searched and selected
   const fetchEmployees = async () => {
     const response = await axios.get("http://localhost:8080/aims/employees/allEmployees");
+  
+    // Some APIs wrap the data inside response.data.users while others return directly
+  
+   // This fallback ensures the component works with both response formats
     setUsersEmail(response.data.users ?? response.data ?? []);
   }
 
   useEffect (() =>{
       // eslint-disable-next-line react-hooks/set-state-in-effect
+      // Runs only once when the modal component mounts
+      // Retrieves the list of employees available for sharing
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchEmployees();
   }, []);
 
+  // If the modal is not open, render nothing
   if (!isOpen) return null;
 
+  // Filters users dynamically based on the search keyword
+  // Matches against first name, middle name, last name, or email
   const filteredUsers = usersEmail.filter((user) => {
     const keyword = search.toLowerCase();
       return (
@@ -45,25 +63,34 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
       );
   });
 
+  // Adds or removes a user from the selected users list when they are clicked
   const toggleUserSelection = (user: User) => {
     const exists = selectedUsers.find((u) => u.email === user.email);
 
     if (exists) {
+      // If the user is already selected, remove them from the list
       setSelectedUsers(selectedUsers.filter((u) => u.email !== user.email));
     } else {
+      // Otherwise add them to the selected users list
       setSelectedUsers([...selectedUsers, user]);
     }
-    setSearch(""); // clear search so user can search again
+    setSearch(""); // Clear search input after selection to allow new searches
   };
 
+  // Sends email notifications to all selected users informing them that a document has been shared with them 
   const handleShare = async () => {
+
+    // Extract only the email addresses from selected users 
     const emails = selectedUsers.map((u) => u.email);
+
+    // Backend endpoint responsible for sending notification emails 
     await axios.post("http://localhost:8080/aims/email/sendEmail", {
       emails: emails,
       subject: "Document Shared With You",
       message: "A document has been shared with you. Please check the system."
     });
-
+    
+    // Notify the user that email notifications were sent
     alert("Email notifications sent!");
   };
 
@@ -71,15 +98,21 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
     <div className="share-modal-overlay">
       <div className="share-modal-container">
         <h3 className="share-modal-title">Share Document</h3>
+
         <input
           type="text"
           placeholder="Search users..."
           className="form-control share-modal-search"
+          
+          // Displays selected user emails as tags-like text
           value={
              selectedUsers.length
             ? selectedUsers.map((u) => u.email).join(", ") + ", " + search
             : search
           }
+
+          // Handles dynamic typing after the last comma
+          // Allows multiple users to be selected like email recipients
           onChange={(e) => {
             const value = e.target.value;
             const lastComma = value.lastIndexOf(",");
@@ -90,6 +123,8 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
               setSearch(value);
             }
           }}
+          
+          // Allows removing the last selected user using backspace 
           onKeyDown={(e) => {
             if (e.key === "Backspace" && search === "" && selectedUsers.length > 0) {
               setSelectedUsers(selectedUsers.slice(0, -1));
