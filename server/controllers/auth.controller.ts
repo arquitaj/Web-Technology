@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import {User} from '../models/employee.model'
+import {User} from '../models/user.model'
 
 export const googleOAuth = async (req: Request, res: Response) =>{
     

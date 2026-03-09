@@ -1,7 +1,7 @@
 // src/routes/index.ts
 import { Router } from 'express';
-import userRouter from './user.routes';
-import employeeRouter from './employee.routes';
+import userRouter from './credentials.routes';
+import employeeRouter from './user.routes';
 import authRouter from './auth.routes'
 import documentRouter from './document.routes'
 
