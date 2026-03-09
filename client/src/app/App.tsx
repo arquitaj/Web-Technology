@@ -14,6 +14,7 @@ function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  // Handles Google OAuth login using the credential returned by Google
   const googleLogin = async (credentialResponse: CredentialResponse) =>{
     const decoded: any = jwtDecode(credentialResponse.credential);
     try{
@@ -28,6 +29,7 @@ function App() {
       alert(error.response?.data?.message || "Login failed");
     }
   }
+  // Sends username and password to backend for normal login
   const handleLogin = async () =>{
     try{
       const response = await axios.post("http://localhost:8080/aims/login/credential", {
