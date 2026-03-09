@@ -2,6 +2,7 @@ import React from "react";
 import { CheckCircle, XCircle, Info } from "lucide-react";
 import "../../../assets/styles/IncomingDoc.css";
 
+ // Static mock data representing incoming documents. In a real application, this would likely come from an API call to the backend.
 const IncomingDoc = () => {
 const docs = [
   {
@@ -46,21 +47,29 @@ const docs = [
                 <th className="actions-header">Actions</th>
               </tr>
             </thead>
+
                 <tbody>
+                  {/* Dynamically render each document as a table row */}
                   {docs.map((doc) => (
+                    // React requires a unique key when rendering lists
                     <tr key={doc.id}>
                       <td className="doc-id">{doc.id}</td>
                       <td>{doc.subject}</td>
                       <td>{doc.signatory}</td>
                       <td>{doc.dateSigned}</td>
+
                       <td>
                         <div className="actions">
+                          {/* Accept action for approving the document */}
                           <button className="btn accept">
                             <CheckCircle size={14} /> Accept
                           </button>
+
+                          {/* Decline action for rejecting the document */}
                           <button className="btn decline">
                             <XCircle size={14} /> Declined
                           </button>
+                          {/* Opens additional information or document details */}
                           <button className="btn details">
                             <Info size={14} /> Details
                           </button>

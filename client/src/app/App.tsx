@@ -14,6 +14,7 @@ function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  // Handles Google OAuth login using the credential returned by Google
   const googleLogin = async (credentialResponse: CredentialResponse) =>{
     const decoded: any = jwtDecode(credentialResponse.credential);
     try{
@@ -22,12 +23,14 @@ function App() {
       })
       if(response.data.success){
         alert(response.data.message);
+        // Redirect user to dashboard after successful login
         navigate("/Dashboard");
       };
     }catch(error: any){
       alert(error.response?.data?.message || "Login failed");
     }
   }
+  // Sends username and password to backend for normal login
   const handleLogin = async () =>{
     try{
       const response = await axios.post("http://localhost:8080/aims/login/credential", {
@@ -70,13 +73,21 @@ function App() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               />
-            <button type="button" className="btn btn-primary" onClick={handleLogin}>Login</button>
-          </div>
-          <div className="mt-3">
+            <button type="button" className="btn-primary text-center btn-login" onClick={handleLogin}>Login</button>
+
+            <div className="d-flex align-items-center my-3">
+              <hr className="flex-grow-1" />
+              <span className="mx-2 text-muted">OR</span>
+              <hr className="flex-grow-1" />
+            </div>
+
+            <div className="w-full d-flex justify-content-center border-0">
             <GoogleLogin 
               onSuccess={googleLogin}
               onError={() => console.log("Login Failed")}
             />
+          </div>
+          
           </div>
             {/* <div>
               <button type="button" className="btn mt-2 btn-light">
