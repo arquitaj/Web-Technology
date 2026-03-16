@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import 'bootstrap/dist/css/bootstrap.css'
 import App from './app/App.tsx'
 import Dashboard from './Pages/Dashboard.tsx'
+import EmployeeDashboard from './Pages/EmployeeDashboard.tsx'
 import NotFoundPage from './Pages/NotFoundPage.tsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { GoogleOAuthProvider} from '@react-oauth/google';
