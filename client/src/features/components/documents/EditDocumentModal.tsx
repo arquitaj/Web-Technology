@@ -42,34 +42,81 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
 
   // Holds the newly uploaded file selected by the user (if they replace the document)
   const [newFile, setNewFile] = useState<File | null>(null);
+
+   const [errors, setErrors] = useState<any>({});
+
+  // FORM VALIDATION
+  const validateForm = () => {
+
+    const newErrors: any = {};
+
+    if (!issuanceType || issuanceType === "--SELECT--")
+      newErrors.issuanceType = "Issuance type is required";
+
+    if (!newDocumentNo.trim())
+      newErrors.documentNo = "Document number is required";
+
+    if (!series)
+      newErrors.series = "Series is required";
+
+    if (!date)
+      newErrors.date = "Date is required";
+
+    if (!subject.trim())
+      newErrors.subject = "Subject is required";
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
   
   // Handles updating the document data and sending it to the backend API
-  const updateData = async (e: { preventDefault: () => void; }) => {
-    e.preventDefault(); 
-   
-    const fileData = new FormData();
-    fileData.append('documentNo', documentNo);
-    fileData.append('newDocumentNo', newDocumentNo);
-    fileData.append('issuanceType', issuanceType);
-    fileData.append('series', series);
-    fileData.append('date', date);
-    fileData.append('subject', subject);
-    fileData.append('keyword', keyword);
-    fileData.append('oldFile', oldFile);
-    // ✅ Only append if file exists
-    if (newFile) {
+    const updateData = async (e: React.FormEvent) => {
+
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    const confirmUpdate = window.confirm(
+      "Are you sure you want to update this document?"
+    );
+
+    if (!confirmUpdate) return;
+
+    try {
+
+      const fileData = new FormData();
+
+      fileData.append('documentNo', documentNo);
+      fileData.append('newDocumentNo', newDocumentNo);
+      fileData.append('issuanceType', issuanceType);
+      fileData.append('series', series);
+      fileData.append('date', date);
+      fileData.append('subject', subject);
+      fileData.append('keyword', keyword);
+      fileData.append('oldFile', oldFile);
+
+      if (newFile) {
         fileData.append('myFile', newFile);
-    }
-    
-    // Send PUT request to backend to update document record
-    const response = await axios.put("http://localhost:8080/aims/documents/updateDocument", fileData,{
-            headers: {'Content-Type': 'multipart/form-data'}
-    });
-    // Notify user if update was successful
-    if(response.data.success){
+      }
+
+      const response = await axios.put(
+        "http://localhost:8080/aims/documents/updateDocument",
+        fileData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }
+      );
+
+      if (response.data.success) {
         alert(response.data.message);
+        handleClose();
+      }
+
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Failed to update document!");
     }
-  }
+  };
 
   const handleClose = () => {
     setDocumentNo("");
@@ -148,6 +195,11 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
                     <option key={index} value={item}>{item}</option>
                     ))}
                 </select>
+
+                    {errors.issuanceType && (
+                        <small className="text-danger">{errors.issuanceType}</small>
+                    )}
+
                 </div>
             </div>
 
@@ -161,6 +213,9 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
                     value={newDocumentNo} 
                     onChange={(e) => setNewDocumentNo(e.target.value)}
                     />
+                    {errors.documentNo && (
+                        <small className="text-danger">{errors.documentNo}</small>
+                    )} 
                 </div>
 
                 <div className="col-md-3 mb-3">
@@ -172,6 +227,11 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
                     autoComplete='off'
                     value={series}
                     onChange={(e) => setSeries(e.target.value)}/>
+
+                    {errors.series && (
+                        <small className="text-danger">{errors.series}</small>
+                    )}  
+
                 </div>
             </div>
 
@@ -185,6 +245,11 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
                         autoComplete='off'
                         value={date}
                         onChange={(e) => setDate(e.target.value)}/>
+                        
+                        {errors.date && (
+                            <small className="text-danger">{errors.date}</small>
+                        )}
+
                 </div>
             </div>
 
@@ -199,6 +264,10 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
                         autoComplete='off'
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)} />
+
+                        {errors.subject && (
+                            <small className="text-danger">{errors.subject}</small>
+                        )}
                 </div>
             </div>
             <div className="row w-100 justify-content-center">

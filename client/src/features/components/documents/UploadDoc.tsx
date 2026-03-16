@@ -1,6 +1,7 @@
 import {useState} from 'react'
 import axios from 'axios';
 
+
 // List of document issuance types used to populate the dropdown menu
 const items = [
     '--SELECT--',
@@ -28,11 +29,44 @@ const UploadDoc = () => {
     const [keyword, setKeyword] = useState("");
     const [file, setFile] = useState<File | null>(null);
 
+    const [errors, setErrors] = useState<any>({});
+
+    const validateForm = () => {
+  const newErrors: any = {};
+
+    if (!file) newErrors.file = "Document file is required";
+
+    if (!issuanceType || issuanceType === "--SELECT--")
+        newErrors.issuanceType = "Issuance type is required";
+
+    if (!documentNo.trim())
+        newErrors.documentNo = "Issuance number is required";
+
+    if (!series)
+        newErrors.series = "Series is required";
+
+    if (!date)
+        newErrors.date = "Date is required";
+
+    if (!subject.trim())
+        newErrors.subject = "Subject is required";
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+    };
+
     // Handles the upload button click and sends the form data to the backend  
-    const handlebtnUpload= async (e: { preventDefault: () => void; }) => {
+    const handlebtnUpload = async (e: React.FormEvent) => {
         
         // Prevents the page from refreshing when submitting the form  
         e.preventDefault();
+
+        if (!validateForm()) return;
+
+        const confirmUpload = window.confirm("Upload this document?");
+        if (!confirmUpload) return;
+
         try{
             
             // Ensure that a file is selected before attempting to upload
@@ -91,6 +125,7 @@ const UploadDoc = () => {
                     setFile(e.target.files[0]);
                 }
         }}/>
+            {errors.file && <small className="text-danger">{errors.file}</small>}
         </div>
         </div>
 
@@ -111,6 +146,11 @@ const UploadDoc = () => {
                     <option key={index} value={item}>{item}</option>
                     ))}
                 </select>
+
+                {errors.issuanceType && (
+                  <small className="text-danger">{errors.issuanceType}</small>
+                )}
+
                 </div>
             </div>
 
@@ -126,6 +166,11 @@ const UploadDoc = () => {
                     
                     // Store the issuance number entered by the user  
                     onChange={(e) => setDocumentNo(e.target.value)}/>
+
+                    {errors.documentNo && (
+                        <small className="text-danger">{errors.documentNo}</small>
+                    )}
+
                 </div>
 
                 <div className="col-md-3 mb-3">
@@ -139,6 +184,11 @@ const UploadDoc = () => {
                     
                     // Update the series value in state
                     onChange={(e) => setSeries(e.target.value)}/>
+
+                    {errors.series && (
+                        <small className="text-danger">{errors.series}</small>
+                    )}
+
                 </div>
             </div>
 
@@ -154,6 +204,10 @@ const UploadDoc = () => {
 
                         // Save the selected date to component state
                         onChange={(e) => setDate(e.target.value)}/>
+
+                        {errors.date && (
+                            <small className="text-danger">{errors.date}</small>
+                        )}
                 </div>
             </div>
 
@@ -170,6 +224,9 @@ const UploadDoc = () => {
 
                         // Update subject field in state
                         onChange={(e) => setSubject(e.target.value)} />
+                        {errors.subject && (
+                            <small className="text-danger">{errors.subject}</small>
+                        )}  
                 </div>
             </div>
 
