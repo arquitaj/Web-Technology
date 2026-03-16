@@ -56,6 +56,9 @@ const UploadDoc = () => {
     return Object.keys(newErrors).length === 0;
     };
 
+    // Local storage for employeeID from login
+    const userID = localStorage.getItem("userID");
+
     // Handles the upload button click and sends the form data to the backend  
     const handlebtnUpload = async (e: React.FormEvent) => {
         
@@ -86,6 +89,9 @@ const UploadDoc = () => {
             fileData.append('date', date);
             fileData.append('subject', subject);
             fileData.append('keyword', keyword);
+            if (userID) {
+                fileData.append("userID", userID);
+            }
 
         // Send POST request to backend API endpoint for document upload
         const response = await axios.post("http://localhost:8080/aims/documents/uploadDocument", fileData,{

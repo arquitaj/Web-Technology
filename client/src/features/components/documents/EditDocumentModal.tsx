@@ -36,6 +36,10 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
   const [date, setDate] = useState("");
   const [subject, setSubject] = useState("");
   const [keyword, setKeyword] = useState("");
+  const userID = localStorage.getItem("userID");
+
+   // Hold the old issuance type   
+  const [oldIssuanceType, setOldIssuanceType] = useState("");
 
   // Holds the current file URL already stored in Firebase / database
   const [oldFile, setOldFile] = useState<string>("");
@@ -95,6 +99,9 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
       fileData.append('subject', subject);
       fileData.append('keyword', keyword);
       fileData.append('oldFile', oldFile);
+    if(userID){
+        fileData.append('userID', userID);
+    }
 
       if (newFile) {
         fileData.append('myFile', newFile);
@@ -127,6 +134,7 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
     setSubject("");
     setKeyword("");
     setOldFile("");
+    setOldIssuanceType("");
     setNewFile(null);
 
   onClose(); // actually close modal
@@ -141,6 +149,8 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
       setSubject(selectedData.subject || "");
       setKeyword(selectedData.keyword || "");
       setOldFile(selectedData.file || "");
+      setOldIssuanceType(selectedData.issuanceType || "");
+
       // --- DATE FORMATTING LOGIC ---
         if (selectedData.date) {
             const rawDate = new Date(selectedData.date);

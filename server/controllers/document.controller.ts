@@ -98,7 +98,7 @@ export const updateDocument = async(req: Request, res: Response) => {
         const fileData = req.file;
 
         // Extract document fields from request body
-        const {documentNo, newDocumentNo ,issuanceType, series, date, subject, keyword, oldFile, newFile} = req.body;
+        const {documentNo, newDocumentNo ,issuanceType, series, date, subject, keyword, oldFile, newFile, oldIssuanceType, userID} = req.body;
         
         // Default file URL remains the old file
         let urlFile = oldFile;
@@ -110,7 +110,6 @@ export const updateDocument = async(req: Request, res: Response) => {
             await deleteObject(fileRef);
 
             // Upload new file to Firebase storage
-            console.log("New image", fileData.originalname);
             const imageRef = ref(storage, `${issuanceType}/${fileData?.originalname}`);
             await uploadBytes(imageRef, fileData.buffer, {
                 contentType: fileData.mimetype,
@@ -118,9 +117,43 @@ export const updateDocument = async(req: Request, res: Response) => {
 
             // Get new file URL after upload
             urlFile = await getDownloadURL(imageRef);
-            console.log("New URL: ", urlFile);
         }
-        console.log("old File is : "+urlFile);
+        // If Issuance Type is being change
+        if(oldIssuanceType != issuanceType){
+            try{
+                // Get reference to old file in storage
+                const oldFileRef = ref(storage, oldFile);
+
+                // Extract filename from old URL (assumes file URL contains the filename)
+                const decodedUrl = decodeURIComponent(urlFile); 
+                const path = decodedUrl.split("/o/")[1].split("?")[0];
+                const decodedPath = decodeURIComponent(path);
+                const filename = decodedPath.split('/').pop(); 
+
+                // Define new storage path with new issuanceType
+                const newFilePath = `${issuanceType}/${filename}`;
+                const newFileRef = ref(storage, newFilePath);
+
+                 // Get file data as blob
+                const fileUrl = await getDownloadURL(oldFileRef);
+                const response = await fetch(fileUrl);
+                const blob = await response.blob();
+
+                // Upload the same file to new location
+                await uploadBytes(newFileRef, blob);
+
+                // Delete the old file
+                await deleteObject(oldFileRef);
+
+                // Update URL for database
+                urlFile = await getDownloadURL(newFileRef);
+                console.log("File moved successfully to new issuanceType folder!");
+
+            }catch(error){
+                // Handle update errors
+                return res.status(400).json({success: false, message: "Error to Update file!"});
+            }
+        }
         
          // Document filter condition
          const filter = {documentNo:documentNo};
@@ -134,7 +167,7 @@ export const updateDocument = async(req: Request, res: Response) => {
                 subject : subject,
                 keyword : keyword,
                 file: urlFile,
-                employeeID: "00001"
+                userID: userID,
             };
             // Update document in database
             const response = await Document.findOneAndUpdate(filter, update,{
@@ -160,7 +193,7 @@ export const addDocument = async(req: Request, res: Response) => {
         const fileData = req.file;
 
         // Extract document details from request body
-        const {documentNo, issuanceType, series, date, subject, keyword, file} = req.body;
+        const {documentNo, issuanceType, series, date, subject, keyword, file, userID} = req.body;
 
          // Check if document already exists
         const existingDoc = await Document.findOne({ documentNo });
@@ -178,7 +211,7 @@ export const addDocument = async(req: Request, res: Response) => {
 
             // Get public download URL
             const url = await getDownloadURL(imageRef);
-
+            console.log("userID is: ", userID);
             // Create new document object
             const newDocument = new Document({
                 documentNo : documentNo,
@@ -189,7 +222,7 @@ export const addDocument = async(req: Request, res: Response) => {
                 keyword : keyword,
                 file : url,
                 uploadDate : new Date(),
-                employeeID : "00001",
+                userID : userID,
             })
 
             // Save document to database

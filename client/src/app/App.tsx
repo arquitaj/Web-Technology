@@ -28,18 +28,19 @@ function App() {
 
       const response = await axios.post("http://localhost:8080/aims/login/AOuth", {
         email: decoded.email
-      });
-
+      })
       if(response.data.success){
         alert(response.data.message);
+        const userID = response.data.user.userID;
+        localStorage.setItem("userID", userID);
+        // Redirect user to dashboard after successful login
         navigate("/Dashboard");
-      }
-
-    } catch(error: any){
+      };
+    }catch(error: any){
       alert(error.response?.data?.message || "Login failed");
     }
   }
-
+  
   // LOGIN VALIDATION + CONFIRMATION
   const handleLogin = async () => {
 
