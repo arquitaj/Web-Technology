@@ -11,14 +11,7 @@ import DashboardBanner from '../features/components/dashboard/DashboardBanner'
 
 
 const Dashboard = () => {
-
-// State that controls which dashboard view is currently active
-// "docs" → show documents section
-// "addUser" → show employee creation form
-// null → show default dashboard banner
-
 const [activeView, setActiveView] = useState<"docs" | "addUser" | null>(null);
-
   return (
     <div>
 

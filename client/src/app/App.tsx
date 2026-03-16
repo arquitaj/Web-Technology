@@ -23,6 +23,8 @@ function App() {
       })
       if(response.data.success){
         alert(response.data.message);
+        const userID = response.data.user.userID;
+        localStorage.setItem("userID", userID);
         // Redirect user to dashboard after successful login
         navigate("/Dashboard");
       };
@@ -39,6 +41,8 @@ function App() {
       });
       if(response.data.success){
         alert(response.data.message);
+        const userID = response.data.user.userID;
+        localStorage.setItem("userID", userID);
         navigate("/Dashboard");
       }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

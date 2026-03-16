@@ -15,7 +15,7 @@ export const googleOAuth = async (req: Request, res: Response) =>{
             return res.status(400).json({success: false, message: "User not found!"});
         }else{
             // If user exists, allow login
-            return res.status(200).json({success: true, message: "Login Successfully!"});
+            return res.status(200).json({success: true, message: "Login Successfully!", user});
         }
     }catch(error){
         console.log(error);
@@ -38,11 +38,9 @@ export const loginUser = async (req: Request, res: Response) => {
 
             // Compare the provided password with the stored password
             if(user.password === password){
-                return res.status(200).json({success: true, message: "Login Successfully!"});
-                console.log("Login Successfully");
+                return res.status(200).json({success: true, message: "Login Successfully!", user});
             }else{
                 // If password does not match, deny login
-                console.log("Wrong Password");
                 return res.status(400).json({success: false, message: "Wrong password!"});
             }
         }

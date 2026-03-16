@@ -28,6 +28,6 @@ export const Document = model ('Document', new Schema({
     uploadDate: {type: Date, required: false},
 
     // ID of the employee who uploaded or owns the document
-    employeeID: {type: String, require: true},
+    userID: {type: String, require: true},
 
 }, {collection: "document"})); 
