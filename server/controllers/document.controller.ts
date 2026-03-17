@@ -1,8 +1,10 @@
 import { Response, Request } from "express";
 import { Document } from '../models/document.model'
+import {ForwardedDocument} from '../models/forward.model'
+import { User } from '../models/user.model'
 import {storage} from '../config/firebase'
 import {ref, uploadBytes, getDownloadURL, deleteObject} from 'firebase/storage'
-import { addEmployee } from "./user.controller";
+import { sendEmailNotification } from "./email.controller";
 
 // Fetch all documents from the database
 export const fetchDocuments = async(req: Request, res: Response) => {
@@ -235,6 +237,70 @@ export const addDocument = async(req: Request, res: Response) => {
         // Handle document creation errors
         return res.status(401).json({success: false, message: "Failed to add new document!"});
         
+    }
+}
+
+export const shareDocuments = async(req: Request, res: Response) => {
+    try{
+        const {emails, documentNo} = req.body;
+        console.log("Emails: ", emails);
+        console.log("Document No. ", documentNo);
+
+        // Find all existing users
+        const users = await User.find({
+            email: { $in: emails }
+        });
+        // Extract found emails
+        // const foundEmails = users.map(u => u.email);
+        // Extract user IDs
+        const userIds = users.map(u => u.userID);
+        console.log("User ID are: ", userIds);
+        // Find the document
+        const doc = await ForwardedDocument.findOne({ documentNo });
+        if (!doc) {
+            // Document does not exist → create new
+            const newSharedWith = userIds.map(id => ({
+                userID: id,
+                forwardedAt: new Date()
+            }));
+            console.log("Data : ", newSharedWith);
+            const newDoc = new ForwardedDocument({
+                documentNo : documentNo,
+                sharedWith: newSharedWith,
+                note : "Something message here!"
+            });
+            await newDoc.save();
+             // Sending Email Notification
+            await sendEmailNotification(
+                emails,
+                `Document ${documentNo} forwarded`,
+                `You have received a forwarded document (Document No: ${documentNo}). Please check your account.`
+            );
+            return res.json({success: true, message: "Successfully forwarded document!"});
+        }
+
+        // Document exists → update sharedWith while preventing duplicates
+        const existingUserIds = doc.sharedWith.map(u => u.userID);
+        const newUsers = userIds
+            .filter(id => !existingUserIds.includes(id))
+            .map(id => ({
+                userID: id,
+                forwardedAt: new Date()
+            }));
+
+             // Only push if there are new users
+        if (newUsers.length > 0) {
+            await ForwardedDocument.updateOne(
+                { documentNo: documentNo },
+                { $addToSet: { sharedWith: { $each: newUsers } } }
+            );
+            return res.json({success: true, message: "Successfully forwarded document!"});
+        } else {
+            return res.json({success: false, message: "Documents already forwarded!"});
+        }
+    }catch{
+        // Handle document creation errors
+        return res.status(401).json({success: false, message: "Failed to share document!"});   
     }
 }
 

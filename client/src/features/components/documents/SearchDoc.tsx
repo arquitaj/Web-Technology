@@ -33,10 +33,10 @@ const SearchDoc = () => {
   const [date, setDate] = useState("");
   const [subject, setSubject] = useState("");
   const [keyword, setKeyword] = useState("");
+  const [selectedDocumentNo, setSelectedDocumentNo] = useState<string | null>(null);
 
   // Validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
-
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const toggleModal = (item: any = null) => {
@@ -45,7 +45,11 @@ const SearchDoc = () => {
     if (isModalOpen) fetchDocuments(); // refresh after modal closes
   };
 
-  const toggleShareModal = () => setIsShareModalOpen(!isShareModalOpen);
+  const toggleShareModal = (docNo: string) => {
+    setSelectedDocumentNo(docNo);
+    setIsShareModalOpen(true);
+  }
+  const closeShareModal = () => setIsShareModalOpen(false);
 
   interface documentData {
     selectedData: any;
@@ -68,7 +72,7 @@ const SearchDoc = () => {
     {
       header: "Action", key: "actions", render: (item) => (
         <>
-          <img src="../public/forward.png" className='tbl-Icon' onClick={toggleShareModal} />
+          <img src="../public/forward.png" className='tbl-Icon' onClick={()=> toggleShareModal(item.documentNo)} />
           <img src="../public/pen.png" className='tbl-Icon' onClick={() => toggleModal(item)} />
           <img src="../public/delete.png" className='tbl-Icon' onClick={() => handleDelete(item.documentNo, item.file)} />
           <img src="../public/download.png" className='tbl-Icon' onClick={() => handleViewFile(item.file)} />
@@ -121,8 +125,8 @@ const SearchDoc = () => {
     if (subject) filters.subject = subject;
     if (keyword) filters.keyword = keyword;
 
-    // const response = await axios.get("http://localhost:8080/aims/documents/searchDocuments", { params: filters });
-    // setDataTable(response.data.documents ?? response.data ?? []);
+    const response = await axios.get("http://localhost:8080/aims/documents/searchDocuments", { params: filters });
+    setDataTable(response.data.documents ?? response.data ?? []);
   }
 
   useEffect(() => {
@@ -198,7 +202,8 @@ const SearchDoc = () => {
 
       <ShareDocumentModal
         isOpen={isShareModalOpen}
-        onClose={toggleShareModal}
+        onClose={closeShareModal}
+        documentNo={selectedDocumentNo}
       />
     </div>
   );

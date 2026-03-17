@@ -63,8 +63,8 @@ function App() {
     }
 
     // Confirmation
-    const confirmed = window.confirm("Proceed with login?");
-    if(!confirmed) return;
+    // const confirmed = window.confirm("Proceed with login?");
+    // if(!confirmed) return;
 
     try{
 

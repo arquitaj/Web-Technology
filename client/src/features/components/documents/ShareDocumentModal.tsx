@@ -6,6 +6,7 @@ import axios from "axios";
 interface ShareDocumentModalProps {
   isOpen: boolean;
   onClose: () => void;
+  documentNo: string | null;
 }
 
 // Defines the structure of user objects received from the backend
@@ -19,6 +20,7 @@ interface User {
 const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
   isOpen,
   onClose,
+  documentNo,
 }) => {
 
   // Stores the search input used to filter users
@@ -50,7 +52,6 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
 
   // If the modal is not open, render nothing
   if (!isOpen) return null;
-
   // Filters users dynamically based on the search keyword
   // Matches against first name, middle name, last name, or email
   const filteredUsers = usersEmail.filter((user) => {
@@ -78,10 +79,23 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
   };
 
   // Sends email notifications to all selected users informing them that a document has been shared with them 
-  const handleShare = async () => {
+  const handleShare = async () => {  
+    if(selectedUsers.length === 0){
+      alert("Please select at least one user.");
+      return;
+    }
+    // Confirmation for sharing documents
+    const confirmed = window.confirm("Are you sure you want to share the document?");
+    if(!confirmed) return;
 
-    // Extract only the email addresses from selected users 
     const emails = selectedUsers.map((u) => u.email);
+    const response = await axios.post("http://localhost:8080/aims/documents/shareDocument", {
+      emails: emails,
+      documentNo: documentNo
+    })
+    alert(response.data.message);
+    // Extract only the email addresses from selected users 
+    // const emails = selectedUsers.map((u) => u.email);
 
     // Backend endpoint responsible for sending notification emails 
     await axios.post("http://localhost:8080/aims/email/sendEmail", {

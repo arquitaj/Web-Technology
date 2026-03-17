@@ -1,37 +1,32 @@
 import nodemailer from "nodemailer";
-import { Request, Response } from "express";
 
-// Controller function that handles sending emails
-export const sendEmail = async (req: Request, res: Response) => {
-  // Extract email list, subject, and message from request body
-  const { emails, subject, message } = req.body;
+export const sendEmailNotification = async (to: string[], subject: string, text: string) => {
+    try {
+      console.log("I am being access!");
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST, // your SMTP host
+            port: Number(process.env.SMTP_PORT),
+            secure: false, // true if port 465
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            },
+            tls: {
+              rejectUnauthorized: false, // allow self-signed certificates
+            },
+        });
 
-  try {
-    // Create transporter using Gmail service for sending emails
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "yourgmail@gmail.com", // sender email
-        pass: "your_app_password" // Gmail app password for authentication
-      }
-    });
+        await transporter.sendMail({
+            from: `"AIMS System" <no-reply@example.com>`,
+            to: to.join(", "),
+            subject,
+            text
+        });
 
-    // Email configuration object
-    const mailOptions = {
-      from: "yourgmail@gmail.com", // sender address
-      to: emails.join(","), // multiple emails
-      subject: subject, // email subject
-      text: message // email message body
-    };
-
-    // Send the email using nodemailer
-    await transporter.sendMail(mailOptions);
-
-    // Return success response if email is sent
-    res.status(200).json({ message: "Email sent successfully" });
-
-  } catch (error) {
-    // Handle error if email sending fails
-    res.status(500).json({ message: "Email sending failed", error });
-  }
+        console.log("Email sent to:", to);
+        return true;
+    } catch (error) {
+        console.error("Email sending failed: ", error);
+        return false;
+    }
 };
