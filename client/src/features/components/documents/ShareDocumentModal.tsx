@@ -78,6 +78,17 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
     setSearch(""); // Clear search input after selection to allow new searches
   };
 
+  //Empty the storage after successfully forwarded
+  const successForwarded = () => {
+    setSearch("");
+    setSelectedUsers([]);
+  }
+  //Handle cancel button or close the modal
+  const handleClose = () => {
+    setSearch("");
+    setSelectedUsers([]);
+    onClose();
+  };
   // Sends email notifications to all selected users informing them that a document has been shared with them 
   const handleShare = async () => {  
     if(selectedUsers.length === 0){
@@ -94,18 +105,9 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
       documentNo: documentNo
     })
     alert(response.data.message);
-    // Extract only the email addresses from selected users 
-    // const emails = selectedUsers.map((u) => u.email);
-
-    // Backend endpoint responsible for sending notification emails 
-    await axios.post("http://localhost:8080/aims/email/sendEmail", {
-      emails: emails,
-      subject: "Document Shared With You",
-      message: "A document has been shared with you. Please check the system."
-    });
-    
-    // Notify the user that email notifications were sent
-    alert("Email notifications sent!");
+    if(response.data.success){
+      successForwarded(); //Calling the method to empty the search field storage if forwarding is success
+    }
   };
 
   return (
@@ -169,7 +171,7 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
         <div className="share-modal-actions">
           <button
             className="btn btn-primary search-btn-cancel"
-            onClick={onClose}
+            onClick={handleClose}
           >
             Cancel
           </button>

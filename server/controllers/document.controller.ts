@@ -6,6 +6,26 @@ import {storage} from '../config/firebase'
 import {ref, uploadBytes, getDownloadURL, deleteObject} from 'firebase/storage'
 import { sendEmailNotification } from "./email.controller";
 
+//Method that will delete the object inside the shareWith in forwarding collection mongodb
+const delUserID = async (documentNo: string, userID: string) => {
+  await ForwardedDocument.updateOne(
+    { documentNo: documentNo },        // find the document
+    {
+      $pull: {                        // remove from array
+        sharedWith: { userID: userID } // remove array element where userID matches
+      }
+    }
+  );
+};
+
+export const AcceptDeclined = async(req: Request, res: Response) => {
+    try{
+        const userID = req.query.userID;
+    }catch(error){
+        return res.status(400).json({success: false, message: "Error: ", error})
+    }
+} 
+
 // Fetch all documents from the database
 export const fetchDocuments = async(req: Request, res: Response) => {
     try{
@@ -18,6 +38,28 @@ export const fetchDocuments = async(req: Request, res: Response) => {
         return res.status(400).json({success: false, message: "Error: ", error})
     }
 }
+
+//Fetch Incoming Documents
+export const incomingDocuments = async (req: Request, res: Response) => {
+    try{
+        const userID = req.query.userID;
+        const forwardedDocs = await ForwardedDocument.find(
+            {"sharedWith.userID": userID},
+            { documentNo: 1, _id: 0 }       //To retrived the documentNo only and drop other details
+        );
+        // Extract document numbers
+        const documentNumbers = forwardedDocs.map(doc => doc.documentNo);
+        //Retrieved document details in document collection
+        const documents = await Document.find({
+            documentNo: { $in: documentNumbers }
+        });
+        return res.status(200).json({success: true, message: "Documents fetched successfully", documents});
+    }catch(error){
+        // Handle errors while fetching documents
+        return res.status(400).json({success: false, message: "Error: ", error})
+    }
+}
+
 
 // Delete a document from database and Firebase storage
 export const deleteDocument = async(req: Request, res: Response) => {
@@ -243,9 +285,6 @@ export const addDocument = async(req: Request, res: Response) => {
 export const shareDocuments = async(req: Request, res: Response) => {
     try{
         const {emails, documentNo} = req.body;
-        console.log("Emails: ", emails);
-        console.log("Document No. ", documentNo);
-
         // Find all existing users
         const users = await User.find({
             email: { $in: emails }
@@ -254,7 +293,6 @@ export const shareDocuments = async(req: Request, res: Response) => {
         // const foundEmails = users.map(u => u.email);
         // Extract user IDs
         const userIds = users.map(u => u.userID);
-        console.log("User ID are: ", userIds);
         // Find the document
         const doc = await ForwardedDocument.findOne({ documentNo });
         if (!doc) {
@@ -263,7 +301,6 @@ export const shareDocuments = async(req: Request, res: Response) => {
                 userID: id,
                 forwardedAt: new Date()
             }));
-            console.log("Data : ", newSharedWith);
             const newDoc = new ForwardedDocument({
                 documentNo : documentNo,
                 sharedWith: newSharedWith,

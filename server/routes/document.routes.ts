@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { addDocument, fetchDocuments, deleteDocument, viewDocument, updateDocument, searchDocuments, shareDocuments } from "../controllers/document.controller"
+import { addDocument, fetchDocuments, deleteDocument, viewDocument, updateDocument, searchDocuments, shareDocuments, incomingDocuments } from "../controllers/document.controller"
 import multer from 'multer'
 
 // Use memoryStorage so the file is available in req.file.buffer
@@ -11,6 +11,7 @@ router.post('/uploadDocument', upload.single('myFile'), addDocument); // Upload 
 router.post('/shareDocument', shareDocuments)
 router.put('/updateDocument', upload.single('myFile'), updateDocument); // Update an existing document and optionally replace its file
 router.get('/allDocuments', fetchDocuments); // Get all stored documents
+router.get('/incomingDocuments', incomingDocuments); // Get all incoming documents
 router.get('/searchDocuments', searchDocuments); // Search documents based on query parameters
 router.delete('/deleteDocument/:documentNo', deleteDocument); // Delete a document using its document number
 router.get('/viewDocument/:documentNo', viewDocument); // View a specific document using its document number

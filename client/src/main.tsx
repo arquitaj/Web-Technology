@@ -17,7 +17,8 @@ console.log(VITE_GOOGLE_CLIENT_ID);
 // Define application routes for React Router
 const router = createBrowserRouter([
   {path:"/",element:<App />}, // Login page
-  {path:"/dashboard", element:<Dashboard />}, // Dashboard after successful login
+  {path:"/AdminDashboard", element:<Dashboard />}, // Admin Dashboard after successful login
+  {path:"/EmployeeDashboard", element:<EmployeeDashboard />}, // Employee Dashboard after successful login
   {path:"*", element:<NotFoundPage />} // Catch-all route for undefined pages
 ])
 

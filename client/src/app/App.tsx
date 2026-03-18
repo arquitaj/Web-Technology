@@ -7,34 +7,33 @@ import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode"
 
 function App() {
-
   const navigate = useNavigate();
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
   const [errors, setErrors] = useState<{username?: string; password?: string}>({});
   const [loading, setLoading] = useState(false);
 
   // GOOGLE LOGIN
   const googleLogin = async (credentialResponse: CredentialResponse) => {
-
-    const decoded: any = jwtDecode(credentialResponse.credential);
-
+    const decoded: any = jwtDecode(credentialResponse.credential || "");
     try {
-
-      const confirmed = window.confirm("Login using Google account?");
-      if(!confirmed) return;
-
+      // const confirmed = window.confirm("Login using Google account?");
+      // if(!confirmed) return;
       const response = await axios.post("http://localhost:8080/aims/login/AOuth", {
         email: decoded.email
       })
       if(response.data.success){
         alert(response.data.message);
-        const userID = response.data.user.userID;
-        localStorage.setItem("userID", userID);
-        // Redirect user to dashboard after successful login
-        navigate("/Dashboard");
+        const {userID, role} = response.data.user;
+        localStorage.setItem("userID", userID); //Local storage for userID to be used in the system transaction
+        localStorage.setItem("role", role); //Local storage for role
+        if(response.data.user.role === "Admin"){
+          // Redirect user to dashboard after successful login
+          navigate("/AdminDashboard");
+        }else{
+          navigate("/EmployeeDashboard")
+        }
+        
       };
     }catch(error: any){
       alert(error.response?.data?.message || "Login failed");
@@ -43,9 +42,7 @@ function App() {
   
   // LOGIN VALIDATION + CONFIRMATION
   const handleLogin = async () => {
-
     const newErrors: {username?: string; password?: string} = {};
-
     // Validation
     if(!username.trim()){
       newErrors.username = "Username is required";
@@ -65,11 +62,8 @@ function App() {
     // Confirmation
     // const confirmed = window.confirm("Proceed with login?");
     // if(!confirmed) return;
-
     try{
-
       setLoading(true);
-
       const response = await axios.post("http://localhost:8080/aims/login/credential", {
         username: username,
         password: password
@@ -77,13 +71,18 @@ function App() {
 
       if(response.data.success){
         alert(response.data.message);
-        navigate("/Dashboard");
+        const {userID, role} = response.data.user;
+        localStorage.setItem("userID", userID); //Local storage for userID to be used in the system transaction
+        localStorage.setItem("role", role); //Local storage for role
+        if(response.data.user.role === "Admin"){
+          navigate("/AdminDashboard");
+        }else{
+          navigate("/EmployeeDashboard");
+        }  
       }
 
     }catch(error: any){
-
       alert(error.response?.data?.message || "Login failed");
-
     }finally{
       setLoading(false);
     }
@@ -92,14 +91,10 @@ function App() {
 
   return (
     <>
-
       <div className='signUp'>
-
         <form className='loginForm'>
-
           <h1>Login</h1>
           <h2>Login to your account</h2>
-
           <div className='inputGroup'>
 
             {/* USERNAME */}
@@ -123,9 +118,7 @@ function App() {
             )}
 
             {/* PASSWORD */}
-
             <label htmlFor="password">Password</label>
-
             <input
               type='password'
               id='password'
@@ -160,14 +153,12 @@ function App() {
             </div>
 
             <div className="w-full d-flex justify-content-center border-0">
-
               <GoogleLogin
                 onSuccess={googleLogin}
                 onError={() => console.log("Login Failed")}
               />
 
             </div>
-
           </div>
                 {/* <div>
               <button type="button" className="btn mt-2 btn-light">

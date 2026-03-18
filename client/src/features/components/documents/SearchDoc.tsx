@@ -35,6 +35,9 @@ const SearchDoc = () => {
   const [keyword, setKeyword] = useState("");
   const [selectedDocumentNo, setSelectedDocumentNo] = useState<string | null>(null);
 
+  // Local storage for role from login
+  const role = localStorage.getItem("role");
+
   // Validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -72,10 +75,17 @@ const SearchDoc = () => {
     {
       header: "Action", key: "actions", render: (item) => (
         <>
-          <img src="../public/forward.png" className='tbl-Icon' onClick={()=> toggleShareModal(item.documentNo)} />
-          <img src="../public/pen.png" className='tbl-Icon' onClick={() => toggleModal(item)} />
-          <img src="../public/delete.png" className='tbl-Icon' onClick={() => handleDelete(item.documentNo, item.file)} />
-          <img src="../public/download.png" className='tbl-Icon' onClick={() => handleViewFile(item.file)} />
+          {role === "Admin" ? (
+            <>
+              <img src="../public/forward.png" className='tbl-Icon' onClick={()=> toggleShareModal(item.documentNo)} />
+              <img src="../public/pen.png" className='tbl-Icon' onClick={() => toggleModal(item)} />
+              <img src="../public/delete.png" className='tbl-Icon' onClick={() => handleDelete(item.documentNo, item.file)} />
+              <img src="../public/download.png" className='tbl-Icon' onClick={() => handleViewFile(item.file)} />
+            </>
+            ) : (
+              <img src="../public/download.png" className='tbl-Icon' onClick={() => handleViewFile(item.file)} />
+            )
+          }
         </>
       )
     }
