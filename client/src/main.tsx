@@ -7,6 +7,8 @@ import EmployeeDashboard from './Pages/EmployeeDashboard.tsx'
 import NotFoundPage from './Pages/NotFoundPage.tsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { GoogleOAuthProvider} from '@react-oauth/google';
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 // Retrieve Google OAuth Client ID from Vite environment variables
 const VITE_GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;

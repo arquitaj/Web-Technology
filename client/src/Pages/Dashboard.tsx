@@ -11,7 +11,7 @@ import DashboardBanner from '../features/components/dashboard/DashboardBanner'
 
 
 const Dashboard = () => {
-const [activeView, setActiveView] = useState<"docs" | "addUser" | null>(null);
+const [activeView, setActiveView] = useState<"docs" | "addUser" | "myDocs" | null>(null);
   return (
     <div>
 
@@ -24,6 +24,7 @@ const [activeView, setActiveView] = useState<"docs" | "addUser" | null>(null);
           <Sidebar
             onDocsClick={() => setActiveView("docs")}  // Switch to documents module
             onAddUserClick={() => setActiveView("addUser")} // Switch to add employee module
+            onMyDocsClick={() => setActiveView("myDocs")} // Switch to my documents module
           />
 
           <div className="dashboard-content">
@@ -33,6 +34,9 @@ const [activeView, setActiveView] = useState<"docs" | "addUser" | null>(null);
           
             {/* Render Add Employee module when activeView is "addUser" */}
             {activeView === "addUser" && <AddNewEmp />}
+
+            {/* Render My Documents module when activeView is "myDocs" */}
+            {/* {activeView === "myDocs" && <MyDocuments />} */}
 
             <div>
               
