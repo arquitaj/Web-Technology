@@ -7,6 +7,7 @@ import DocumentsToggle from '../features/components/documents/DocumentsToggle'
 // import AddDocumentNo from '../components/AddDocumentNo'
 import AddNewEmp from '../features/components/employees/AddNewEmp'
 import DashboardBanner from '../features/components/dashboard/DashboardBanner'
+import MyDocuments from '../features/components/mydocuments/MyDocuments'
 
 
 
@@ -36,7 +37,7 @@ const [activeView, setActiveView] = useState<"docs" | "addUser" | "myDocs" | nul
             {activeView === "addUser" && <AddNewEmp />}
 
             {/* Render My Documents module when activeView is "myDocs" */}
-            {/* {activeView === "myDocs" && <MyDocuments />} */}
+            {activeView === "myDocs" && <MyDocuments />}
 
             <div>
               
