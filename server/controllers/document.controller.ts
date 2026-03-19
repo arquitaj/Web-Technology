@@ -6,26 +6,6 @@ import {storage} from '../config/firebase'
 import {ref, uploadBytes, getDownloadURL, deleteObject} from 'firebase/storage'
 import { sendEmailNotification } from "./email.controller";
 
-//Method that will delete the object inside the shareWith in forwarding collection mongodb
-const delUserID = async (documentNo: string, userID: string) => {
-  await ForwardedDocument.updateOne(
-    { documentNo: documentNo },        // find the document
-    {
-      $pull: {                        // remove from array
-        sharedWith: { userID: userID } // remove array element where userID matches
-      }
-    }
-  );
-};
-
-export const AcceptDeclined = async(req: Request, res: Response) => {
-    try{
-        const userID = req.query.userID;
-    }catch(error){
-        return res.status(400).json({success: false, message: "Error: ", error})
-    }
-} 
-
 // Fetch all documents from the database
 export const fetchDocuments = async(req: Request, res: Response) => {
     try{
@@ -235,7 +215,9 @@ export const addDocument = async(req: Request, res: Response) => {
     try{
         // Uploaded file information
         const fileData = req.file;
-
+        if (!fileData) {
+            return res.status(400).json({ success: false, message: "No file uploaded!" });
+        }
         // Extract document details from request body
         const {documentNo, issuanceType, series, date, subject, keyword, file, userID} = req.body;
 

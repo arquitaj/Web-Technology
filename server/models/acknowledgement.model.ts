@@ -1,5 +1,6 @@
 import {Schema, model} from 'mongoose';
-export const ForwardedDocument = model ('ForwardedDocument', new Schema({
+
+export const acknowledgementDocumentModel = model ('acknowledgementDocumentModel', new Schema({
     documentNo : {type: String, required: true},
     sharedWith: [
         {

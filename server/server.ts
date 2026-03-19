@@ -4,8 +4,11 @@ import express from 'express'
 import dotenv from 'dotenv'
 import apiRouter from './routes/index'
 import connectDB from './config/database'
+import { applySecurity } from "./middleware/security";
 
 const app = express();
+// Apply security middleware
+applySecurity(app);
 
 app.use(cors({
   origin: 'http://localhost:5173', // Allow only your frontend port

@@ -8,7 +8,6 @@ import Table, { type columnConfig } from '../../../shared/components/ui/Table';
  // Static mock data representing incoming documents. In a real application, this would likely come from an API call to the backend.
 const IncomingDoc = () => {
   const [dataTable, setDataTable] = useState([]);
-
   const userID = localStorage.getItem("userID");
 
   interface documentData {
@@ -29,8 +28,8 @@ const IncomingDoc = () => {
       {
         header: "Action", key: "actions", render: (item) => (
           <>
-            <button className="btn accept"><CheckCircle size={14} /> Accept</button>
-            <button className="btn decline"><XCircle size={14} /> Declined</button>
+            <button className="btn accept" onClick={() => acknowledgeDocument(item.documentNo, "Accept")}><CheckCircle size={14} /> Accept</button>
+            <button className="btn decline" onClick={() => acknowledgeDocument(item.documentNo, "Declined")}><XCircle size={14} /> Declined</button>
             <button className="btn details" onClick={() => showDetails(item.file)}><Info size={14} /> Details</button>
             {/* <img src="../public/forward.png" className='tbl-Icon' onClick={()=> toggleShareModal(item.documentNo)} />
             <img src="../public/pen.png" className='tbl-Icon' onClick={() => toggleModal(item)} />
@@ -42,13 +41,30 @@ const IncomingDoc = () => {
   ];
 
   // Method for accept button
+  const acknowledgeDocument = async (documentNo: string, action: string) => {
+    try {
+      alert("Action is: "+ action);
+      const response = await axios.post("http://localhost:8080/aims/documents/acknowledgeDocument", {
+        documentNo, action, userID
+      });
+      if(response.data.success){
+        alert(response.data.message);
+        fetchDocuments();
+      }
+      
+
+    } catch (error) {
+      console.error("Error updating document:", error);
+    }
+  };
 
   //Method for declined button
-
+  
   // Method for show details button
   const showDetails = async (file: string) => { 
     window.open(file, "_blank");
   }
+  
   // Fetching data for Table
   const fetchDocuments = async () => {
     const response = await axios.get("http://localhost:8080/aims/documents/incomingDocuments", {
