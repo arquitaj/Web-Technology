@@ -34,7 +34,7 @@ const SearchDoc = () => {
   const [subject, setSubject] = useState("");
   const [keyword, setKeyword] = useState("");
   const [selectedDocumentNo, setSelectedDocumentNo] = useState<string | null>(null);
-
+  const [selectedIssuanceType, setSelectedIssuancetype] = useState<string | null>(null);
   // Local storage for role from login
   const role = localStorage.getItem("role");
 
@@ -48,8 +48,9 @@ const SearchDoc = () => {
     if (isModalOpen) fetchDocuments(); // refresh after modal closes
   };
 
-  const toggleShareModal = (docNo: string) => {
+  const toggleShareModal = (docNo: string, type: string) => {
     setSelectedDocumentNo(docNo);
+    setSelectedIssuancetype(type);
     setIsShareModalOpen(true);
   }
   const closeShareModal = () => setIsShareModalOpen(false);
@@ -77,7 +78,7 @@ const SearchDoc = () => {
         <>
           {role === "Admin" ? (
             <>
-              <img src="../public/forward.png" className='tbl-Icon' onClick={()=> toggleShareModal(item.documentNo)} />
+              <img src="../public/forward.png" className='tbl-Icon' onClick={()=> toggleShareModal(item.documentNo, item.issuanceType)} />
               <img src="../public/pen.png" className='tbl-Icon' onClick={() => toggleModal(item)} />
               <img src="../public/delete.png" className='tbl-Icon' onClick={() => handleDelete(item.documentNo, item.file)} />
               <img src="../public/download.png" className='tbl-Icon' onClick={() => handleViewFile(item.file)} />
@@ -214,6 +215,7 @@ const SearchDoc = () => {
         isOpen={isShareModalOpen}
         onClose={closeShareModal}
         documentNo={selectedDocumentNo}
+        issuanceType = {selectedIssuanceType}
       />
     </div>
   );

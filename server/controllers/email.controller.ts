@@ -1,9 +1,9 @@
 import nodemailer from "nodemailer";
+import { Request, Response, RequestHandler } from "express";
+import dotenv from "dotenv";
+dotenv.config();
 
-export const sendEmailNotification = async (to: string[], subject: string, text: string) => {
-    try {
-      console.log("I am being access!");
-        const transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST, // your SMTP host
             port: Number(process.env.SMTP_PORT),
             secure: false, // true if port 465
@@ -14,17 +14,21 @@ export const sendEmailNotification = async (to: string[], subject: string, text:
             tls: {
               rejectUnauthorized: false, // allow self-signed certificates
             },
+});
+
+export const sendEmailNotification = async (req: Request, res: Response) => {
+    try {
+      const {emails, subject, message} = req.body;  
+      console.log("I am being access! The message is: ", message);
+        const info = await transporter.sendMail({
+            from: "Records Section <"+ process.env.SMTP_USER +">" ,
+            to: emails,
+            subject: subject,
+            text: message
         });
 
-        await transporter.sendMail({
-            from: `"AIMS System" <no-reply@example.com>`,
-            to: to.join(", "),
-            subject,
-            text
-        });
-
-        console.log("Email sent to:", to);
-        return true;
+        console.log("Email sent to:", emails);
+        return res.status(200).json({ success: true, message: "Email successfully sent!" });
     } catch (error) {
         console.error("Email sending failed: ", error);
         return false;

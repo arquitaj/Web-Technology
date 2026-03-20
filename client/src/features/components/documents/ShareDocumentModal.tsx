@@ -7,6 +7,7 @@ interface ShareDocumentModalProps {
   isOpen: boolean;
   onClose: () => void;
   documentNo: string | null;
+  issuanceType: string | null;
 }
 
 // Defines the structure of user objects received from the backend
@@ -21,6 +22,7 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
   isOpen,
   onClose,
   documentNo,
+  issuanceType
 }) => {
 
   // Stores the search input used to filter users
@@ -89,16 +91,29 @@ const ShareDocumentModal: React.FC<ShareDocumentModalProps> = ({
     setSelectedUsers([]);
     onClose();
   };
-  // Sends email notifications to all selected users informing them that a document has been shared with them 
-  const handleShare = async () => {  
-    if(selectedUsers.length === 0){
-      alert("Please select at least one user.");
-      return;
-    }
+
+ const handleShare = async () => {  
     // Confirmation for sharing documents
     const confirmed = window.confirm("Are you sure you want to share the document?");
     if(!confirmed) return;
+      
+    // Sends email notifications to all selected users informing them that a document has been shared with them 
+    if(selectedUsers.length === 0){
+      alert("Please select at least one user.");
+      return
+    }else{
+      const emails = selectedUsers.map((u) => u.email);
+      const emailNotification = await axios.post("http://localhost:8080/aims/emailNotification/sendEmail", {
+        emails: emails,
+        subject: issuanceType+" No. "+documentNo,
+        message: "You have new document forwarded from records section!"
+    });
+      if(emailNotification.data.success){
+        alert(emailNotification.data.message);
+      }
+    }
 
+    // Updating share documents model
     const emails = selectedUsers.map((u) => u.email);
     const response = await axios.post("http://localhost:8080/aims/documents/shareDocument", {
       emails: emails,
