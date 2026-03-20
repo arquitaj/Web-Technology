@@ -1,7 +1,13 @@
 // src/controllers/employee.controller.ts
 import { Request, Response } from "express";
 import {User} from '../models/user.model';
+import bcrypt from 'bcrypt';
 
+// Hashing of Password
+const hashPassword = async (password: string) : Promise<string> => {
+    const salt = await bcrypt.genSalt(Number(process.env.SALT_ROUNDS));
+    return await bcrypt.hash(password, salt);
+};
 // To Fetch All Employees
 export const getAllEmployees = async (req: Request, res: Response) => {
     try{
@@ -20,7 +26,10 @@ export const addEmployee = async(req: Request, res: Response) => {
     try{
         // Extract employee data from request body
         const {userID, fname, mname, lname, email, userName, password, role} = req.body;
-       
+        
+        // Hash result password
+        const hashedPassword = await hashPassword(password);
+        
         // Check if employee ID already exists
         const empID = await User.findOne({userID:userID});
        
@@ -43,7 +52,7 @@ export const addEmployee = async(req: Request, res: Response) => {
                     lastName : lname,
                     email : email,
                     username : userName,
-                    password : password,
+                    password : hashedPassword,
                     role: role,
                     createdAt: Date.now() // Record creation timestamp
                 });
@@ -67,6 +76,9 @@ export const updateEmployee = async(req: Request, res: Response) => {
         // Extract updated employee data
         const {fname, mname, lname, email, userName, password, role} = req.body;
         
+        // Hash result password
+        const hashedPassword = await hashPassword(password);
+
         // Filter to locate employee in database
         const filter = {userID:userID};
         
@@ -77,7 +89,7 @@ export const updateEmployee = async(req: Request, res: Response) => {
             lastName : lname,
             email : email,
             username : userName,
-            password : password,
+            password : hashedPassword,
             role: role
         };
 

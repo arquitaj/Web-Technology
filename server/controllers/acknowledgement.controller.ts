@@ -1,6 +1,7 @@
 import { Response, Request } from "express";
 import { acknowledgementDocumentModel } from '../models/acknowledgement.model'
 import {ForwardedDocument} from '../models/forward.model'
+import { Document } from "../models/document.model";
 
 //Method that will delete the object inside the shareWith in forwarding collection mongodb
 const delUserID = async (documentNo: string, userID: string) => {
@@ -24,16 +25,6 @@ const delUserID = async (documentNo: string, userID: string) => {
         return false;
     }
 };
-
-
-    // documentNo : {type: String, required: true},
-    // sharedWith: [
-    //     {
-    //     userID: { type: String, required: true },
-    //     acknowledgementDate: {type: Date, required: true},
-    //     status: {type: String, require: true},
-    //     }
-    // ],
 
 //To save data in acknowledgement model
 const saveAcknowledgeDocument = async(documentNo: string, userID: string, status: string) => {
@@ -87,7 +78,6 @@ export const acknowledgeDocument = async (req: Request ,res: Response) => {
     try{
         
         const {documentNo, action, userID} = req.body;
-        console.log("Action is :", action);
         // Save acknowledgement first
         const acknowledged = await saveAcknowledgeDocument(documentNo, userID, action);
         if (!acknowledged) {
@@ -96,19 +86,35 @@ export const acknowledgeDocument = async (req: Request ,res: Response) => {
         // Remove user from forwarded document if needed
         const deletionSuccess = await delUserID(documentNo, userID);
         return res.status(200).json({ success: true, message: `Document successfully ${action}!` });
-
-        // const deletionSuccess = await delUserID(documentNo, userID);
-        // if(deletionSuccess){
-        //     const isAcknowledge = await saveAcknowledgeDocument(documentNo, userID, action);
-        //     if(isAcknowledge){
-        //         return res.status(200).json({success: true, message: "Documents successfully "+ action+"!"});
-        //     }else{
-        //         return res.status(400).json({success: false, message: "Error: "})
-        //     }
-        // }else{
-        //     return res.status(400).json({success: false, message: "Error: "})
-        // }
     }catch(error){
+        return res.status(400).json({success: false, message: "Error: ", error})
+    }
+}
+
+//Fetch my Documents
+export const myDocuments = async (req: Request, res: Response) => {
+    try{
+        const userID = req.query.userID;
+        const myDocs = await acknowledgementDocumentModel.find(
+           { 
+                sharedWith: { 
+                    $elemMatch: { 
+                        userID: userID, 
+                        status: "Accept"
+                    } 
+                } 
+            },
+            { documentNo: 1, _id: 0 }
+        ).lean();
+        // Extract document numbers
+        const documentNumbers = myDocs.map(doc => doc.documentNo);
+        //Retrieved document details in document collection
+        const documents = await Document.find({
+            documentNo: { $in: documentNumbers }
+        });
+        return res.status(200).json({success: true, message: "Documents fetched successfully", documents});
+    }catch(error){
+        // Handle errors while fetching documents
         return res.status(400).json({success: false, message: "Error: ", error})
     }
 }

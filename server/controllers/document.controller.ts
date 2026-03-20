@@ -4,7 +4,6 @@ import {ForwardedDocument} from '../models/forward.model'
 import { User } from '../models/user.model'
 import {storage} from '../config/firebase'
 import {ref, uploadBytes, getDownloadURL, deleteObject} from 'firebase/storage'
-import { sendEmailNotification } from "./email.controller";
 
 // Fetch all documents from the database
 export const fetchDocuments = async(req: Request, res: Response) => {
@@ -289,12 +288,6 @@ export const shareDocuments = async(req: Request, res: Response) => {
                 note : "Something message here!"
             });
             await newDoc.save();
-             // Sending Email Notification
-            await sendEmailNotification(
-                emails,
-                `Document ${documentNo} forwarded`,
-                `You have received a forwarded document (Document No: ${documentNo}). Please check your account.`
-            );
             return res.json({success: true, message: "Successfully forwarded document!"});
         }
 

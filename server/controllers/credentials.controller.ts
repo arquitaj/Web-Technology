@@ -1,7 +1,5 @@
-// src/controllers/user.controller.ts
-
-// Import Request and Response types from Express for typing HTTP requests and responses
 import { Request, Response } from 'express';
+import bcrypt from 'bcrypt';
 
 // Controller function to handle fetching all users
 export const getAllUsers = (req: Request, res: Response) => {

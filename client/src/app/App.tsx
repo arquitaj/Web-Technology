@@ -59,9 +59,6 @@ function App() {
       return;
     }
 
-    // Confirmation
-    // const confirmed = window.confirm("Proceed with login?");
-    // if(!confirmed) return;
     try{
       setLoading(true);
       const response = await axios.post("http://localhost:8080/aims/login/credential", {
