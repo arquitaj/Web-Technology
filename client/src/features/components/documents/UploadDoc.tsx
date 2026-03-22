@@ -1,268 +1,218 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {useState} from 'react'
+import { useState } from 'react';
 import axios from 'axios';
 
-
-// List of document issuance types used to populate the dropdown menu
 const items = [
-    '--SELECT--',
-    'Administrative Order',
-    'Memorandum Circular',
-    'Office Circular',
-    'Office Memorandum',
-    'Office Order',
-    'Resolution',
-    'CSC Issuance',
-    'OLA Opinion',
-    'MOA / MOU',
-    'Project Contract',
-    'Memorandum Order'
+  '--SELECT--',
+  'Administrative Order',
+  'Memorandum Circular',
+  'Office Circular',
+  'Office Memorandum',
+  'Office Order',
+  'Resolution',
+  'CSC Issuance',
+  'OLA Opinion',
+  'MOA / MOU',
+  'Project Contract',
+  'Memorandum Order'
 ];
 
 const UploadDoc = () => {
-   
-    // React state hooks to store form input values
-    const [documentNo, setDocumentNo] = useState("");
-    const [issuanceType, setIssuanceType] = useState("");
-    const [series, setSeries] = useState("");
-    const [date, setDate] = useState("");
-    const [subject, setSubject] = useState("");
-    const [keyword, setKeyword] = useState("");
-    const [file, setFile] = useState<File | null>(null);
+  const [documentNo, setDocumentNo] = useState("");
+  const [issuanceType, setIssuanceType] = useState("");
+  const [series, setSeries] = useState("");
+  const [date, setDate] = useState("");
+  const [subject, setSubject] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [file, setFile] = useState<File | null>(null);
 
-    const [errors, setErrors] = useState<any>({});
+  const [errors, setErrors] = useState<any>({});
+  const [loading, setLoading] = useState(false);
 
-    const validateForm = () => {
-  const newErrors: any = {};
+  const userID = localStorage.getItem("userID");
+
+  const validateForm = () => {
+    const newErrors: any = {};
 
     if (!file) newErrors.file = "Document file is required";
-
     if (!issuanceType || issuanceType === "--SELECT--")
-        newErrors.issuanceType = "Issuance type is required";
-
+      newErrors.issuanceType = "Issuance type is required";
     if (!documentNo.trim())
-        newErrors.documentNo = "Issuance number is required";
-
-    if (!series)
-        newErrors.series = "Series is required";
-
-    if (!date)
-        newErrors.date = "Date is required";
-
-    if (!subject.trim())
-        newErrors.subject = "Subject is required";
+      newErrors.documentNo = "Issuance number is required";
+    if (!series) newErrors.series = "Series is required";
+    if (!date) newErrors.date = "Date is required";
+    if (!subject.trim()) newErrors.subject = "Subject is required";
 
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
-    };
+  };
 
-    // Local storage for employeeID from login
-    const userID = localStorage.getItem("userID");
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
-    // Handles the upload button click and sends the form data to the backend  
-    const handlebtnUpload = async (e: React.FormEvent) => {
-        
-        // Prevents the page from refreshing when submitting the form  
-        e.preventDefault();
+    const confirmUpload = window.confirm("Upload this document?");
+    if (!confirmUpload) return;
 
-        if (!validateForm()) return;
+    try {
+      setLoading(true);
 
-        const confirmUpload = window.confirm("Upload this document?");
-        if (!confirmUpload) return;
+      const formData = new FormData();
+      formData.append('myFile', file as Blob);
+      formData.append('documentNo', documentNo);
+      formData.append('issuanceType', issuanceType);
+      formData.append('series', series);
+      formData.append('date', date);
+      formData.append('subject', subject);
+      formData.append('keyword', keyword);
 
-        try{
-            
-            // Ensure that a file is selected before attempting to upload
-            if (!file) {
-                alert("Please select a file.");
-                return;
-            }
+      if (userID) formData.append("userID", userID);
 
-            // FormData is required for sending files via HTTP request 
-            const fileData = new FormData();
+      const res = await axios.post(
+        "http://localhost:8080/aims/documents/uploadDocument",
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
 
-            // Append the uploaded file and metadata fields to the request body   
-            fileData.append('myFile', file);
-            fileData.append('documentNo', documentNo);
-            fileData.append('issuanceType', issuanceType);
-            fileData.append('series', series);
-            fileData.append('date', date);
-            fileData.append('subject', subject);
-            fileData.append('keyword', keyword);
-            if (userID) {
-                fileData.append("userID", userID);
-            }
+      if (res.data.success) {
+        alert(res.data.message);
 
-        // Send POST request to backend API endpoint for document upload
-        const response = await axios.post("http://localhost:8080/aims/documents/uploadDocument", fileData,{
-            // Required header for file uploads
-            headers: {'Content-Type': 'multipart/form-data'}
-        });
+        // Reset form
+        setDocumentNo("");
+        setIssuanceType("");
+        setSeries("");
+        setDate("");
+        setSubject("");
+        setKeyword("");
+        setFile(null);
+        setErrors({});
+      }
 
-        // Display success message if backend confirms upload
-        if(response.data.success){
-            alert(response.data.message);
-        }
-        
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        }catch(error: any){
-            alert(error.response?.data?.message || "Failed to Add New Document!");
-        }
-  }
-
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Upload failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div>
-      <h2 className="text-center">Upload Document Component</h2>
+    <div className="container mt-0 d-flex justify-content-center">
+      <div className="card shadow-lg p-4" style={{ width: "700px" }}>
+        <h4 className="text-center mb-4">Upload Document</h4>
 
-      <form className="d-flex flex-column align-items-center g-3">
-        <div className="row justify-content-center w-100">
-        <div className="mb-3 col-md-6">
-          <label htmlFor="formFile" className="form-label">Upload Document</label>
-          <input 
-            className="form-control" 
-            type="file" 
-            id="formFile"
-            autoComplete='off'
-            onChange={(e) => {
+        <form onSubmit={handleUpload}>
 
-                // Capture the selected file from the file input 
-                if (e.target.files && e.target.files[0]) {
-                    setFile(e.target.files[0]);
-                }
-        }}/>
+          {/* FILE */}
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Document File</label>
+            <input
+              type="file"
+              className="form-control"
+              onChange={(e) => {
+                if (e.target.files?.[0]) setFile(e.target.files[0]);
+              }}
+            />
             {errors.file && <small className="text-danger">{errors.file}</small>}
-        </div>
-        </div>
+          </div>
 
-            <div className="row w-100 justify-content-center">
-                <div className="col-md-6 mb-3">
-                <label htmlFor="inputState" className="form-label">Issuance Type</label>
-                <select 
-                    id="inputState" 
-                    className="form-select text-center"
-                    autoComplete='off'
-                    value={issuanceType}
+          {/* ISSUANCE TYPE */}
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Issuance Type</label>
+            <select
+              className="form-select"
+              value={issuanceType}
+              onChange={(e) => setIssuanceType(e.target.value)}
+            >
+              {items.map(item => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+            </select>
+            {errors.issuanceType && <small className="text-danger">{errors.issuanceType}</small>}
+          </div>
 
-                    // Update issuance type state when user selects a value  
-                    onChange={(e) => setIssuanceType(e.target.value)}>
-                    {items.map((item, index) => (
-
-                    // Dynamically generate dropdown options from items array    
-                    <option key={index} value={item}>{item}</option>
-                    ))}
-                </select>
-
-                {errors.issuanceType && (
-                  <small className="text-danger">{errors.issuanceType}</small>
-                )}
-
-                </div>
+          {/* ROW: DOC NO + SERIES */}
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">Issuance No.</label>
+              <input
+                type="text"
+                className="form-control"
+                value={documentNo}
+                onChange={(e) => setDocumentNo(e.target.value)}
+              />
+              {errors.documentNo && <small className="text-danger">{errors.documentNo}</small>}
             </div>
 
-            <div className="row w-100 justify-content-center">
-                <div className="col-md-3 mb-3">
-                <label htmlFor="inssuaceNo" className="form-label">Issuance No.</label>
-                <input 
-                    type="text" 
-                    className="form-control" 
-                    id="inssuaceNo" 
-                    autoComplete='off'
-                    value={documentNo}
-                    
-                    // Store the issuance number entered by the user  
-                    onChange={(e) => setDocumentNo(e.target.value)}/>
-
-                    {errors.documentNo && (
-                        <small className="text-danger">{errors.documentNo}</small>
-                    )}
-
-                </div>
-
-                <div className="col-md-3 mb-3">
-                <label htmlFor="series" className="form-label">Series</label>
-                <input 
-                    type="number" 
-                    className="form-control" 
-                    id="series" 
-                    autoComplete='off'
-                    value={series}
-                    
-                    // Update the series value in state
-                    onChange={(e) => setSeries(e.target.value)}/>
-
-                    {errors.series && (
-                        <small className="text-danger">{errors.series}</small>
-                    )}
-
-                </div>
+            <div className="col-md-6 mb-3">
+              <label className="form-label fw-semibold">Series</label>
+              <input
+                type="number"
+                className="form-control"
+                value={series}
+                onChange={(e) => setSeries(e.target.value)}
+              />
+              {errors.series && <small className="text-danger">{errors.series}</small>}
             </div>
+          </div>
 
-            <div className="row justify-content-center w-100">
-                <div className="col-md-6 mb-3">
-                    <label htmlFor="date" className="form-label">Date</label>
-                    <input 
-                        type="date" 
-                        className="form-control" 
-                        id="date" 
-                        autoComplete='off'
-                        value={date}
+          {/* DATE */}
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Date</label>
+            <input
+              type="date"
+              className="form-control"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+            {errors.date && <small className="text-danger">{errors.date}</small>}
+          </div>
 
-                        // Save the selected date to component state
-                        onChange={(e) => setDate(e.target.value)}/>
+          {/* SUBJECT */}
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Subject</label>
+            <input
+              type="text"
+              className="form-control"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+            />
+            {errors.subject && <small className="text-danger">{errors.subject}</small>}
+          </div>
 
-                        {errors.date && (
-                            <small className="text-danger">{errors.date}</small>
-                        )}
-                </div>
-            </div>
+          {/* KEYWORDS */}
+          <div className="mb-4">
+            <label className="form-label fw-semibold">Keywords</label>
+            <input
+              type="text"
+              className="form-control"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+          </div>
 
+          {/* ACTIONS */}
+          <div className="d-flex justify-content-between">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Uploading..." : "Upload"}
+            </button>
 
-            <div className="row w-100 justify-content-center">
-                <div className="col-md-6 mb-3">
-                    <label htmlFor="inputSubject" className="form-label">Subject</label>
-                    <input 
-                        type="text" 
-                        className="form-control" 
-                        id="inputSubject"
-                        autoComplete='off'
-                        value={subject}
-
-                        // Update subject field in state
-                        onChange={(e) => setSubject(e.target.value)} />
-                        {errors.subject && (
-                            <small className="text-danger">{errors.subject}</small>
-                        )}  
-                </div>
-            </div>
-
-            <div className="row w-100 justify-content-center">
-                <div className="col-md-6 mb-3 ">
-                    <label htmlFor="inputKeyWords" className="form-label">Key Words</label>
-                    <input 
-                        type="text" 
-                        className="form-control" 
-                        id="inputKeyWords"
-                        autoComplete='off'
-                        value={keyword}
-
-                        // Update keyword field in state
-                        onChange={(e) => setKeyword(e.target.value)}/>
-                </div>
-            </div>
-            <div className="row w-100 justify-content-center align-items-center">
-              <div className="col-md-2 mb-3">
-              <button type="submit" className="btn btn-primary" onClick={handlebtnUpload}>Upload</button>
-              </div>
-              <div className="col-md-2 mb-3">
-              <button type="submit" className="btn btn-primary color-red">Cancel</button>
-              </div>   
-            </div>
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => window.location.reload()}
+            >
+              Cancel
+            </button>
+          </div>
 
         </form>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default UploadDoc
+export default UploadDoc;

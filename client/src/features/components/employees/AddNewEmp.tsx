@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react'
 import { X, Save, Edit2 } from "lucide-react";
 import "../../../assets/styles/AddNewEmp.css";
@@ -32,9 +33,9 @@ const AddNewEmp = () => {
    
     // Fetch all employees from backend API 
     const response = await axios.get("http://localhost:8080/aims/employees/allEmployees");
-    
-    // Store employee data in state (handles different response formats)
     setUsers(response.data.users ?? response.data ?? []);
+    const userID = await axios.get("http://localhost:8080/aims/employees/newEmployee");
+    setEmployeeID(userID.data.nextID);
   }
 
   useEffect (() =>{
@@ -55,6 +56,7 @@ const AddNewEmp = () => {
     setRole("");
     setEditingId(null);
     setErrors({});
+    fetchEmployees();
   }
 
   // Frontend validation
@@ -264,6 +266,7 @@ const AddNewEmp = () => {
               <label>Employee ID</label>
               <input 
                 type="text"
+                disabled
                 autoComplete='off'
                 value={userID}
                 onChange={(e) => setEmployeeID(e.target.value)}/>

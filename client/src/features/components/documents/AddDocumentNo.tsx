@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import axios from 'axios';
+import React, { useState } from 'react';
 
-// Declaring array for Type of documents
+// Issuance types
 const items = [
   '--SELECT--',
   'Administrative Order',
@@ -17,70 +19,102 @@ const items = [
 ];
 
 const AddDocumentNo = () => {
-
   const [issuanceType, setIssuanceType] = useState("");
   const [error, setError] = useState("");
+  const [documentNo, setDocumentNo] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleGenerate = (e: React.FormEvent) => {
+  const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!issuanceType || issuanceType === "--SELECT--") {
+      setDocumentNo("");
       setError("Please select an issuance type.");
       return;
     }
 
+    setError("");
+
     const confirmGenerate = window.confirm(
       "Generate document number for this issuance type?"
     );
-
     if (!confirmGenerate) return;
 
-    setError("");
-    alert("Document number generated successfully!");
+    try {
+      setLoading(true);
+
+      const response = await axios.get(
+        "http://localhost:8080/aims/documents/generateDocumentNo",
+        { params: { issuanceType } }
+      );
+
+      setDocumentNo(response.data.nextDocNo);
+    } catch (err) {
+      setError("Failed to generate document number.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div>
-      <div>
-        <h2 className='text-center'>Generate Document Number</h2>
+    <div className="container mt-0 d-flex justify-content-center">
+      <div className="card shadow-lg p-4" style={{ width: "500px" }}>
+        
+        {/* Header */}
+        <h4 className="text-center mb-4">
+          Generate Document Number
+        </h4>
 
-        <form className="d-flex align-items-center g-3" onSubmit={handleGenerate}>
+        <form onSubmit={handleGenerate}>
+          
+          {/* Issuance Type */}
+          <div className="mb-3">
+            <label className="form-label fw-semibold">
+              Issuance Type
+            </label>
 
-          <div className="row w-75 justify-content-center">
-            <div className="col-md-6 mb-3">
+            <select
+              className="form-select"
+              value={issuanceType}
+              onChange={(e) => setIssuanceType(e.target.value)}
+            >
+              {items.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
 
-              <label htmlFor="inputState" className="form-label">
-                Issuance Type
-              </label>
-
-              <select
-                id="inputState"
-                className="form-select text-center"
-                value={issuanceType}
-                onChange={(e) => setIssuanceType(e.target.value)}
-              >
-                {items.map(item => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-
-              {error && (
-                <small className="text-danger">{error}</small>
-              )}
-
-            </div>
+            {error && (
+              <div className="text-danger mt-1">
+                <small>{error}</small>
+              </div>
+            )}
           </div>
 
-          <div className="mb-3 justify-content-center">
-            <button type="submit" className="btn btn-primary">
-              Generate
+          {/* Generate Button */}
+          <div className="d-grid mb-3">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Generating..." : "Generate"}
             </button>
           </div>
+
+          {/* Result Display */}
+          {documentNo && (
+            <div className="alert alert-success text-center">
+              <div className="fw-semibold">Generated Document No:</div>
+              <h3 className="mt-2 mb-0">{documentNo}</h3>
+            </div>
+          )}
 
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AddDocumentNo
+export default AddDocumentNo;

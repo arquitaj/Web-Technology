@@ -3,6 +3,28 @@ import { Request, Response } from "express";
 import {User} from '../models/user.model';
 import bcrypt from 'bcrypt';
 
+// Generate User ID.
+export const generateUserID = async (req: Request, res: Response) => {
+    try{
+        const latestID = await User.aggregate([{
+            $addFields: {
+                userIDInt: { $toInt: "$userID" }
+            }
+        },
+        {
+            $sort: { userIDInt: -1 }
+        },
+        {
+            $limit: 1
+        }
+    ]);
+    const nextID = latestID.length > 0 ? latestID[0].userIDInt + 1 : 1;
+    return res.status(200).json({success: true, message: "Successfully generated new user ID", nextID});
+    }catch(error){
+        return res.status(400).json({success: false, message: "Error: ", error})
+    }
+}
+
 // Hashing of Password
 const hashPassword = async (password: string) : Promise<string> => {
     const salt = await bcrypt.genSalt(Number(process.env.SALT_ROUNDS));
