@@ -5,6 +5,27 @@ import { User } from '../models/user.model'
 import {storage} from '../config/firebase'
 import {ref, uploadBytes, getDownloadURL, deleteObject} from 'firebase/storage'
 
+// Generate Document No.
+export const generateDocumentNo = async (req: Request, res: Response) => {
+    try{
+        const latestDoc = await Document.aggregate([{
+            $addFields: {
+                documentNoInt: { $toInt: "$documentNo" }
+            }
+        },
+        {
+            $sort: { documentNoInt: -1 }
+        },
+        {
+            $limit: 1
+        }
+    ]);
+    const nextDocNo = latestDoc.length > 0 ? latestDoc[0].documentNoInt + 1 : 1;
+    return res.status(200).json({success: true, message: "Successfully generated new document number", nextDocNo});
+    }catch(error){
+        return res.status(400).json({success: false, message: "Error: ", error})
+    }
+}
 // Fetch all documents from the database
 export const fetchDocuments = async(req: Request, res: Response) => {
     try{

@@ -1,5 +1,6 @@
 import { Router } from "express"
-import { addDocument, fetchDocuments, deleteDocument, viewDocument, updateDocument, searchDocuments, shareDocuments, incomingDocuments } from "../controllers/document.controller"
+import { addDocument, fetchDocuments, deleteDocument, viewDocument, updateDocument, 
+    searchDocuments, shareDocuments, incomingDocuments, generateDocumentNo } from "../controllers/document.controller"
 import { acknowledgeDocument, myDocuments } from "../controllers/acknowledgement.controller";
 import multer from 'multer'
 
@@ -18,6 +19,7 @@ router.get('/myDocuments', myDocuments) // To fetch all my documents
 router.get('/searchDocuments', searchDocuments); // Search documents based on query parameters
 router.delete('/deleteDocument/:documentNo', deleteDocument); // Delete a document using its document number
 router.get('/viewDocument/:documentNo', viewDocument); // View a specific document using its document number
+router.get('/generateDocumentno', generateDocumentNo); //To generate document no in incremental
 
 
 export default router;
