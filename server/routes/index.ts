@@ -1,6 +1,5 @@
 // src/routes/index.ts
 import { Router } from 'express';
-import userRouter from './credentials.routes';
 import employeeRouter from './user.routes';
 import authRouter from './auth.routes'
 import documentRouter from './document.routes'
@@ -10,7 +9,6 @@ import emailRouter from './email.routes'
 const rootRouter = Router();
 
 // Categorize by prefixing with /users
-rootRouter.use('/users', userRouter);
 rootRouter.use('/employees', employeeRouter);  //Router for employees
 rootRouter.use('/login', authRouter);   //Router for Login
 rootRouter.use('/documents', documentRouter); //Document
