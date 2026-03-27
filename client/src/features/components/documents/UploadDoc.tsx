@@ -18,7 +18,6 @@ const items = [
 ];
 
 const UploadDoc = () => {
-  const [showForm, setShowForm] = useState(true); // controls form visibility
   const [documentNo, setDocumentNo] = useState("");
   const [issuanceType, setIssuanceType] = useState("");
   const [series, setSeries] = useState("");
@@ -31,7 +30,22 @@ const UploadDoc = () => {
   const [loading, setLoading] = useState(false);
 
   const userID = localStorage.getItem("userID");
+  const [fileKey, setFileKey] = useState(Date.now()); // unique key for file input
 
+  const resetForm = () => {
+    const confirmed = window.confirm("Are you sure you want to empty the form?");
+    if (!confirmed) return;
+     // Reset form
+        setFile(null);
+        setDocumentNo("");
+        setIssuanceType("");
+        setSeries("");
+        setDate("");
+        setSubject("");
+        setKeyword("");
+        setFile(null);
+        setFileKey(Date.now()); // change key to force input reset
+  }
   const validateForm = () => {
     const newErrors: any = {};
 
@@ -78,14 +92,7 @@ const UploadDoc = () => {
       if (res.data.success) {
         alert(res.data.message);
 
-        // Reset form
-        setDocumentNo("");
-        setIssuanceType("");
-        setSeries("");
-        setDate("");
-        setSubject("");
-        setKeyword("");
-        setFile(null);
+        resetForm();
         setErrors({});
       }
 
@@ -96,7 +103,6 @@ const UploadDoc = () => {
     }
   };
 
-  if (!showForm) return null; // hides the form when showForm is false
   return (
     <div className="container mt-0 d-flex justify-content-center">
       <div className="card shadow-lg p-4" style={{ width: "700px" }}>
@@ -109,6 +115,7 @@ const UploadDoc = () => {
             <label className="form-label fw-semibold">Document File</label>
             <input
               type="file"
+              key={fileKey}   // this forces React to recreate the input
               className="form-control"
               onChange={(e) => {
                 if (e.target.files?.[0]) setFile(e.target.files[0]);
@@ -205,9 +212,9 @@ const UploadDoc = () => {
             <button
               type="button"
               className="btn btn-outline-secondary"
-              onClick={() => setShowForm(false)} // hide form
+              onClick={resetForm}
             >
-              Cancel
+              Clear
             </button>
           </div>
 
