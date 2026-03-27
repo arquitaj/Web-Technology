@@ -177,7 +177,6 @@ const AddNewEmp = () => {
       }else{
         
         // If editingId exists → update existing employee
-        alert(userID);
         const response = await axios.put(`http://localhost:8080/aims/employees/updateEmployee/${userID}`, {
           fname: fname,
           mname: mname,
