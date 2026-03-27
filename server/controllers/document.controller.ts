@@ -139,20 +139,23 @@ export const searchDocuments = async(req:Request, res: Response) => {
 export const updateDocument = async(req: Request, res: Response) => {
     try{
         // Uploaded file data from request
-        const fileData = req.file;
+        const fileData = (req as any).file;
 
         // Extract document fields from request body
-        const {documentNo, newDocumentNo ,issuanceType, series, date, subject, keyword, oldFile, newFile, oldIssuanceType, userID} = req.body;
+        const {documentNo, newDocumentNo ,issuanceType, series, date, subject, keyword, oldFile, oldIssuanceType, userID} = req.body;
         
         // Default file URL remains the old file
         let urlFile = oldFile;
-
+        const decodedUrl = decodeURIComponent(urlFile); 
+        const path = decodedUrl.split("/o/")[1].split("?")[0];
         // If a new file is uploaded, replace the existing file
         if(fileData){
-            // Delete old file from Firebase
-            const fileRef = ref(storage, oldFile);
-            await deleteObject(fileRef);
-
+            if(oldFile){
+                // Delete old file from Firebase
+                const filePath = ref(storage, path);
+                await deleteObject(filePath);
+            }
+        
             // Upload new file to Firebase storage
             const imageRef = ref(storage, `${issuanceType}/${fileData?.originalname}`);
             await uploadBytes(imageRef, fileData.buffer, {
@@ -163,14 +166,13 @@ export const updateDocument = async(req: Request, res: Response) => {
             urlFile = await getDownloadURL(imageRef);
         }
         // If Issuance Type is being change
-        if(oldIssuanceType != issuanceType){
+        else if(oldIssuanceType != issuanceType){
             try{
                 // Get reference to old file in storage
                 const oldFileRef = ref(storage, oldFile);
 
                 // Extract filename from old URL (assumes file URL contains the filename)
-                const decodedUrl = decodeURIComponent(urlFile); 
-                const path = decodedUrl.split("/o/")[1].split("?")[0];
+ 
                 const decodedPath = decodeURIComponent(path);
                 const filename = decodedPath.split('/').pop(); 
 
@@ -191,7 +193,6 @@ export const updateDocument = async(req: Request, res: Response) => {
 
                 // Update URL for database
                 urlFile = await getDownloadURL(newFileRef);
-                console.log("File moved successfully to new issuanceType folder!");
 
             }catch(error){
                 // Handle update errors
@@ -234,7 +235,7 @@ export const updateDocument = async(req: Request, res: Response) => {
 export const addDocument = async(req: Request, res: Response) => {
     try{
         // Uploaded file information
-        const fileData = req.file;
+        const fileData = (req as any).file;
         if (!fileData) {
             return res.status(400).json({ success: false, message: "No file uploaded!" });
         }
@@ -257,7 +258,6 @@ export const addDocument = async(req: Request, res: Response) => {
 
             // Get public download URL
             const url = await getDownloadURL(imageRef);
-            console.log("userID is: ", userID);
             // Create new document object
             const newDocument = new Document({
                 documentNo : documentNo,
@@ -305,8 +305,7 @@ export const shareDocuments = async(req: Request, res: Response) => {
             }));
             const newDoc = new ForwardedDocument({
                 documentNo : documentNo,
-                sharedWith: newSharedWith,
-                note : "Something message here!"
+                sharedWith: newSharedWith
             });
             await newDoc.save();
             return res.json({success: true, message: "Successfully forwarded document!"});
