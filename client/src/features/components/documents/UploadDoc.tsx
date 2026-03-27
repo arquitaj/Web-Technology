@@ -18,6 +18,7 @@ const items = [
 ];
 
 const UploadDoc = () => {
+  const [showForm, setShowForm] = useState(true); // controls form visibility
   const [documentNo, setDocumentNo] = useState("");
   const [issuanceType, setIssuanceType] = useState("");
   const [series, setSeries] = useState("");
@@ -95,6 +96,7 @@ const UploadDoc = () => {
     }
   };
 
+  if (!showForm) return null; // hides the form when showForm is false
   return (
     <div className="container mt-0 d-flex justify-content-center">
       <div className="card shadow-lg p-4" style={{ width: "700px" }}>
@@ -203,7 +205,7 @@ const UploadDoc = () => {
             <button
               type="button"
               className="btn btn-outline-secondary"
-              onClick={() => window.location.reload()}
+              onClick={() => setShowForm(false)} // hide form
             >
               Cancel
             </button>
