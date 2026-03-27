@@ -64,10 +64,6 @@ const AddNewEmp = () => {
 
     const newErrors:any = {};
 
-    if(!userID.trim()){
-      newErrors.userID = "Employee ID is required";
-    }
-
     if(!fname.trim()){
       newErrors.fname = "First name is required";
     }
@@ -138,7 +134,7 @@ const AddNewEmp = () => {
   }
 
   const handlebtnRegister= async () => {
-
+    alert("BTN is :");
     // Run frontend validation before submitting
     if(!validateForm()){
       return;
