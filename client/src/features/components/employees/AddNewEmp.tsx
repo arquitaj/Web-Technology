@@ -134,7 +134,6 @@ const AddNewEmp = () => {
   }
 
   const handlebtnRegister= async () => {
-    alert("BTN is :");
     // Run frontend validation before submitting
     if(!validateForm()){
       return;

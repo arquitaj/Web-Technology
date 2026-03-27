@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 import { acknowledgementDocumentModel } from '../models/acknowledgement.model'
-import {ForwardedDocument} from '../models/forward.model'
+import {ForwardedDocument} from '../models/forwarding.model'
 import { Document } from "../models/document.model";
 
 //Method that will delete the object inside the shareWith in forwarding collection mongodb
