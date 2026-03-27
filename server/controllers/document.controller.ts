@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 import { Document } from '../models/document.model'
-import {ForwardedDocument} from '../models/forward.model'
+import {ForwardedDocument} from '../models/forwarding.model'
 import { User } from '../models/user.model'
 import {storage} from '../config/firebase'
 import {ref, uploadBytes, getDownloadURL, deleteObject} from 'firebase/storage'
@@ -166,7 +166,9 @@ export const updateDocument = async(req: Request, res: Response) => {
             urlFile = await getDownloadURL(imageRef);
         }
         // If Issuance Type is being change
-        else if(oldIssuanceType != issuanceType){
+        if(oldIssuanceType !== issuanceType){ 
+            console.log("Old Version ", oldIssuanceType);
+            console.log("New Version ", issuanceType);
             try{
                 // Get reference to old file in storage
                 const oldFileRef = ref(storage, oldFile);

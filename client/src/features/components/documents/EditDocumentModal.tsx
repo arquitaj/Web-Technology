@@ -100,6 +100,7 @@ const EditDocumentModal: React.FC<EditDocumentModalProps> = ({isOpen, onClose, s
       fileData.append('subject', subject);
       fileData.append('keyword', keyword);
       fileData.append('oldFile', oldFile);
+      fileData.append('oldIssuanceType', oldIssuanceType);
     if(userID){
         fileData.append('userID', userID);
     }
