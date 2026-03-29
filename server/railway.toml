@@ -6,5 +6,3 @@ startCommand = "./node_modules/.bin/tsx server.ts"
 
 [environment]
 NODE_ENV = "development"
-
-NODE_ENV=development
