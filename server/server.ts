@@ -24,5 +24,8 @@ connectDB();
 app.use(express.json());
 
 // Mount all API routes under /api
+console.log("por", process.env.PORT);
 app.use('/aims', apiRouter);
-app.listen(process.env.PORT);
+app.listen(process.env.PORT, () => {
+  console.log(`🚀 Server running`);
+});
