@@ -16,8 +16,6 @@ app.use(cors({
   credentials: true
 }));
 
-const PORT = 8080;
-
 // To secure the connection of the database
 dotenv.config();
 connectDB();
@@ -27,7 +25,4 @@ app.use(express.json());
 
 // Mount all API routes under /api
 app.use('/aims', apiRouter);
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+app.listen(process.env.PORT);
