@@ -1,6 +1,6 @@
-# Web-Technology - Document Management System
+# Administrative Issuance Management System (AIMS)
 
-A full-stack web application for managing and tracking documents within an organization, built with modern technologies and best practices.
+The Administrative Issuance Management System (AIMS) is a centralized platform designed to manage the creation, tracking, distribution, and acknowledgment of administrative documents within an organization. It supports role-based access where Records Officers as an admin handle core functions such as user management, document registration, tracking number generation, and document routing, while Employees primarily receive and acknowledge documents to ensure accountability. The system utilizes structured workflows through include relationships for reusable processes and extend relationships for optional actions, enabling flexibility and reducing redundancy. Overall, AIMS enhances operational efficiency, ensures data integrity, improves document visibility, and provides a reliable audit trail for all administrative issuances.
 
 ## 🌐 Live Demo
 
